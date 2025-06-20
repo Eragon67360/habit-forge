@@ -7,11 +7,12 @@ import { useColorScheme } from 'react-native';
 import 'react-native-reanimated';
 
 import AuthWrapper from '@/components/AuthWrapper';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { useAppStore } from '@/store/useAppStore';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const { user, isAuthenticated, setTheme, currentTheme } = useAppStore();
+  const { user, setTheme, currentTheme } = useAppStore();
   
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
@@ -34,22 +35,24 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={currentTheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AuthWrapper>
-        <Stack screenOptions={{ headerShown: false }} initialRouteName="splash">
-          {/* Splash screen - first screen to load */}
-          <Stack.Screen name="splash" />
-          
-          {/* Authentication screens */}
-          <Stack.Screen name="onboarding" />
-          <Stack.Screen name="auth" />
-          
-          {/* Main app screens */}
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-        <StatusBar style={currentTheme === 'dark' ? 'light' : 'dark'} />
-      </AuthWrapper>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider value={currentTheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <AuthWrapper>
+          <Stack screenOptions={{ headerShown: false }} initialRouteName="splash">
+            {/* Splash screen - first screen to load */}
+            <Stack.Screen name="splash" />
+            
+            {/* Authentication screens */}
+            <Stack.Screen name="onboarding" />
+            <Stack.Screen name="auth" />
+            
+            {/* Main app screens */}
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+          <StatusBar style={currentTheme === 'dark' ? 'light' : 'dark'} />
+        </AuthWrapper>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }

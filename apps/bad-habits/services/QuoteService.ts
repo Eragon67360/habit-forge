@@ -43,7 +43,6 @@ class QuoteService {
     const timeSinceLastRequest = now - this.lastRequestTime;
     
     if (timeSinceLastRequest < this.MIN_REQUEST_INTERVAL) {
-      console.warn(`Rate limit: Request too soon. Wait ${Math.ceil((this.MIN_REQUEST_INTERVAL - timeSinceLastRequest) / 1000)}s`);
       return false;
     }
     
@@ -56,16 +55,23 @@ class QuoteService {
       throw new Error('AI API key not configured');
     }
 
-    // Check rate limiting
     if (!this.checkRateLimit()) {
       throw new Error('Rate limit: Please wait before requesting another quote');
     }
 
     const prompt = `Generate an inspirational quote about personal growth, habits, motivation, or self-improvement. 
+    The quote should be uplifting and actionable, encouraging users to build better habits and improve themselves.
+    
+    Please provide the response in the following JSON format:
+    {
+      "text": "The actual inspirational quote text here",
+      "author": "Author name or 'Unknown' if no specific author",
+      "category": "One of: motivation, habits, growth, success, mindfulness, productivity"
+    }
+    
     Make sure the quote is genuinely inspiring and the author is real. Keep the quote under 200 characters.`;
 
     try {
-      console.log('📤 Sending request to OpenAI...');
       const response = await fetch(AI_API_ENDPOINT, {
         method: 'POST',
         headers: {
@@ -115,12 +121,10 @@ class QuoteService {
       });
 
       if (response.status === 429) {
-        console.error('🚫 Rate limit exceeded (429)');
         throw new Error('Rate limit exceeded. Please wait a moment before trying again.');
       }
 
       if (!response.ok) {
-        console.error('❌ API Error:', response.status, response.statusText);
         throw new Error(`AI API error: ${response.status} - ${response.statusText}`);
       }
 
@@ -130,32 +134,27 @@ class QuoteService {
       if (data.output && data.output[0] && data.output[0].content && data.output[0].content[0]) {
         const content = data.output[0].content[0];
         if (content.type === 'refusal') {
-          console.error('❌ Model refused to respond:', content.refusal);
           throw new Error('Model refused to generate quote. Please try again.');
         }
       }
 
       // Extract the structured output from the correct location
       if (!data.output || !data.output[0] || !data.output[0].content || !data.output[0].content[0]) {
-        console.error('❌ Invalid response structure');
         throw new Error('Invalid response structure from AI API');
       }
 
       const content = data.output[0].content[0];
       if (content.type !== 'output_text') {
-        console.error('❌ Unexpected content type:', content.type);
         throw new Error('Unexpected response type from AI API');
       }
 
       const outputText = content.text;
       if (!outputText) {
-        console.error('❌ No output text in response');
         throw new Error('Invalid response from AI API');
       }
 
       // Parse the JSON response
       const quoteData = JSON.parse(outputText);
-      console.log('✅ Quote parsed successfully:', quoteData);
       
       return {
         text: quoteData.text,
@@ -163,7 +162,6 @@ class QuoteService {
         category: quoteData.category,
       };
     } catch (error) {
-      console.error('💥 Error fetching quote from AI:', error);
       throw error;
     }
   }

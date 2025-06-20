@@ -65,6 +65,7 @@ interface AppStore extends AppState {
   setDailyQuote: (quote: Quote | null) => void;
   refreshQuote: () => Promise<void>;
   forceRefreshQuote: () => Promise<void>;
+  forceNewQuote: () => Promise<void>;
   
   // Utility actions
   resetApp: () => void;
@@ -289,15 +290,11 @@ export const useAppStore = create<AppStore>()(
       // Quote actions
       fetchDailyQuote: async () => {
         try {
-          set({ isQuoteLoading: true });
-          const quoteService = QuoteService.getInstance();
-          const quote = await quoteService.getDailyQuote();
+          const quote = await QuoteService.getInstance().getDailyQuote();
           set({ dailyQuote: quote });
         } catch (error) {
-          console.error('Error fetching daily quote:', error);
           // Keep existing quote if fetch fails
-        } finally {
-          set({ isQuoteLoading: false });
+          console.warn('Failed to fetch daily quote:', error);
         }
       },
 
@@ -305,29 +302,36 @@ export const useAppStore = create<AppStore>()(
 
       refreshQuote: async () => {
         try {
-          set({ isQuoteLoading: true });
           const quoteService = QuoteService.getInstance();
           const quote = await quoteService.refreshQuote();
           set({ dailyQuote: quote });
         } catch (error) {
           console.error('Error refreshing quote:', error);
           // Keep existing quote if refresh fails
-        } finally {
-          set({ isQuoteLoading: false });
         }
       },
 
       forceRefreshQuote: async () => {
+        set({ isQuoteLoading: true });
         try {
-          set({ isQuoteLoading: true });
-          const quoteService = QuoteService.getInstance();
-          // Force a new quote regardless of day
-          const quote = await quoteService.refreshQuote();
-          set({ dailyQuote: quote });
+          const quote = await QuoteService.getInstance().refreshQuote();
+          set({ dailyQuote: quote, isQuoteLoading: false });
         } catch (error) {
-          console.error('Error forcing quote refresh:', error);
+          // Keep existing quote if refresh fails
+          console.warn('Failed to refresh quote:', error);
+          set({ isQuoteLoading: false });
+        }
+      },
+
+      // Force a new quote regardless of day
+      forceNewQuote: async () => {
+        set({ isQuoteLoading: true });
+        try {
+          const quote = await QuoteService.getInstance().refreshQuote();
+          set({ dailyQuote: quote, isQuoteLoading: false });
+        } catch (error) {
           // Keep existing quote if fetch fails
-        } finally {
+          console.warn('Failed to force new quote:', error);
           set({ isQuoteLoading: false });
         }
       },
