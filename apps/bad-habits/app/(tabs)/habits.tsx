@@ -86,7 +86,7 @@ export default function HabitsScreen() {
       addHabit(habitData);
       setShowAddModal(false);
       Alert.alert('Success', `"${predefinedHabit.name}" added to your habits!`);
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Failed to add predefined habit. Please try again.');
     }
   };
@@ -138,7 +138,7 @@ export default function HabitsScreen() {
       });
       setHabitErrors({});
       Alert.alert('Success', 'Habit created successfully!');
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Failed to create habit. Please try again.');
     }
   };
@@ -915,7 +915,7 @@ export default function HabitsScreen() {
     modeToggle: {
       flexDirection: 'row',
       paddingHorizontal: 20,
-      marginBottom: 16,
+      marginBlock: 16,
       gap: 8,
     },
     modeOption: {

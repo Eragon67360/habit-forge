@@ -22,6 +22,7 @@ const HEADER_HEIGHT = height / 2;
 
 export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   
   const {
     user,
@@ -39,15 +40,22 @@ export default function HomeScreen() {
   // Get theme-aware colors
   const COLORS = getThemeColors(currentTheme === 'dark');
 
-  const activeHabits = getActiveHabits();
+  const allActiveHabits = getActiveHabits();
   const todayCheckIns = getTodayCheckIns();
+
+  // Filter active habits based on search query
+  const activeHabits = allActiveHabits.filter((habit: Habit) => {
+    const matchesSearch = habit.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         habit.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesSearch;
+  });
 
   // Fetch quote only if we don't have one - this prevents infinite loops
   React.useEffect(() => {
     if (!dailyQuote) {
       fetchDailyQuote();
     }
-  }, []); // Empty dependency array - runs only once
+  }, [dailyQuote, fetchDailyQuote]); // Added missing dependencies
 
   // Create styles with current theme colors
   const styles = StyleSheet.create({
@@ -376,7 +384,7 @@ export default function HomeScreen() {
           [{ text: 'OK' }]
         );
       }
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Failed to check in. Please try again.');
     }
   };
@@ -499,6 +507,8 @@ export default function HomeScreen() {
                   placeholder="Search habits..."
                   placeholderTextColor={COLORS.textSecondary}
                   style={styles.searchInput}
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
                 />
               </View>
             </View>
@@ -509,9 +519,17 @@ export default function HomeScreen() {
             <Text style={styles.sectionTitle}>Today&apos;s Habits</Text>
             {activeHabits.length === 0 ? (
               <View style={styles.emptyState}>
-                <Text style={styles.emptyStateText}>You have no active habits.</Text>
+                <Text style={styles.emptyStateText}>
+                  {searchQuery 
+                    ? 'No habits found matching your search'
+                    : 'You have no active habits.'
+                  }
+                </Text>
                 <Text style={styles.emptyStateSubtext}>
-                  Use the plus button to add a habit.
+                  {searchQuery
+                    ? 'Try adjusting your search terms'
+                    : 'Use the plus button to add a habit.'
+                  }
                 </Text>
               </View>
             ) : (

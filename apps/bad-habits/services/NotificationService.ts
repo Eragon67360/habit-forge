@@ -29,38 +29,38 @@ export class NotificationService {
   /**
    * Initialize notification service
    */
-  async initialize(): Promise<void> {
-    if (this.isInitialized) return;
-
+  async initialize(): Promise<boolean> {
     try {
-      // Request permissions
-      const { status: existingStatus } = await Notifications.getPermissionsAsync();
-      let finalStatus = existingStatus;
-
-      if (existingStatus !== 'granted') {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== 'granted') {
+        return false;
       }
 
-      if (finalStatus !== 'granted') {
-        console.warn('Notification permissions not granted');
-        return;
-      }
+      // Configure notification behavior
+      await Notifications.setNotificationHandler({
+        handleNotification: async () => ({
+          shouldShowAlert: true,
+          shouldPlaySound: true,
+          shouldSetBadge: false,
+          shouldShowBanner: true,
+          shouldShowList: true,
+        }),
+      });
 
       // Configure for Android
       if (Platform.OS === 'android') {
         await Notifications.setNotificationChannelAsync('default', {
           name: 'default',
-          importance: Notifications.AndroidImportance.MAX,
+          importance: Notifications.AndroidImportance.HIGH,
           vibrationPattern: [0, 250, 250, 250],
           lightColor: '#A076F9',
         });
       }
 
       this.isInitialized = true;
-      console.log('Notification service initialized successfully');
+      return true;
     } catch (error) {
-      console.error('Failed to initialize notification service:', error);
+      return false;
     }
   }
 
@@ -78,8 +78,8 @@ export class NotificationService {
       
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: 'Time for your habits! 🌟',
-          body: 'Ready to make today count? Check in with your habits!',
+          title: 'HabitForge Reminder',
+          body: 'Time to check in on your habits!',
           data: { type: 'daily_reminder' },
         },
         trigger: {
@@ -89,10 +89,8 @@ export class NotificationService {
           type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
         },
       });
-
-      console.log(`Daily reminder scheduled for ${time}`);
     } catch (error) {
-      console.error('Failed to schedule daily reminder:', error);
+      // Handle error silently
     }
   }
 
@@ -105,27 +103,16 @@ export class NotificationService {
     scheduledDate: Date
   ): Promise<void> {
     try {
-      const message = this.getStreakMilestoneMessage(streakCount);
-      
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: `🎉 ${streakCount} Day Streak!`,
-          body: `${habitName}: ${message}`,
-          data: { 
-            type: 'streak_milestone',
-            habitName,
-            streakCount,
-          },
+          title: '🎉 Streak Milestone!',
+          body: `Congratulations! You've reached a ${streakCount}-day streak with "${habitName}"!`,
+          data: { type: 'streak_milestone', habitName, streakCount },
         },
-        trigger: {
-          date: scheduledDate,
-          type: Notifications.SchedulableTriggerInputTypes.DATE,
-        },
+        trigger: null, // Send immediately
       });
-
-      console.log(`Streak milestone notification scheduled for ${habitName}`);
     } catch (error) {
-      console.error('Failed to schedule streak milestone:', error);
+      // Handle error silently
     }
   }
 
@@ -139,19 +126,14 @@ export class NotificationService {
     try {
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: 'Keep going! 💪',
-          body: message,
+          title: '💪 Keep Going!',
+          body: 'Every day is a new opportunity to build better habits.',
           data: { type: 'encouragement' },
         },
-        trigger: {
-          date: scheduledDate,
-          type: Notifications.SchedulableTriggerInputTypes.DATE,
-        },
+        trigger: null, // Send immediately
       });
-
-      console.log('Encouragement notification scheduled');
     } catch (error) {
-      console.error('Failed to schedule encouragement:', error);
+      // Handle error silently
     }
   }
 
@@ -161,9 +143,8 @@ export class NotificationService {
   async cancelAllNotifications(): Promise<void> {
     try {
       await Notifications.cancelAllScheduledNotificationsAsync();
-      console.log('All notifications cancelled');
     } catch (error) {
-      console.error('Failed to cancel notifications:', error);
+      // Handle error silently
     }
   }
 
@@ -173,9 +154,8 @@ export class NotificationService {
   async cancelNotification(notificationId: string): Promise<void> {
     try {
       await Notifications.cancelScheduledNotificationAsync(notificationId);
-      console.log(`Notification ${notificationId} cancelled`);
     } catch (error) {
-      console.error('Failed to cancel notification:', error);
+      // Handle error silently
     }
   }
 
@@ -186,7 +166,6 @@ export class NotificationService {
     try {
       return await Notifications.getAllScheduledNotificationsAsync();
     } catch (error) {
-      console.error('Failed to get scheduled notifications:', error);
       return [];
     }
   }
@@ -209,7 +188,7 @@ export class NotificationService {
         trigger: null, // Send immediately
       });
     } catch (error) {
-      console.error('Failed to send immediate notification:', error);
+      // Handle error silently
     }
   }
 
@@ -228,10 +207,8 @@ export class NotificationService {
           preferences
         );
       }
-
-      console.log('Notification settings updated');
     } catch (error) {
-      console.error('Failed to update notification settings:', error);
+      // Handle error silently
     }
   }
 
@@ -267,7 +244,6 @@ export class NotificationService {
       const { status } = await Notifications.getPermissionsAsync();
       return status === 'granted';
     } catch (error) {
-      console.error('Failed to check notification permissions:', error);
       return false;
     }
   }
@@ -280,7 +256,6 @@ export class NotificationService {
       const { status } = await Notifications.requestPermissionsAsync();
       return status === 'granted';
     } catch (error) {
-      console.error('Failed to request notification permissions:', error);
       return false;
     }
   }

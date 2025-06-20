@@ -1,5 +1,6 @@
 import { APP_CONFIG } from '@/constants/Data';
 import { ValidationError } from '@/types';
+import bcrypt from 'bcryptjs';
 
 /**
  * Generate a unique ID for entities
@@ -9,18 +10,18 @@ export const generateId = (): string => {
 };
 
 /**
- * Simple password hashing function (for demo purposes)
- * In production, use a proper hashing library like bcrypt
+ * Secure password hashing using bcrypt
  */
-export const hashPassword = (password: string): string => {
-  // Simple hash for demo - replace with proper hashing in production
-  let hash = 0;
-  for (let i = 0; i < password.length; i++) {
-    const char = password.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32-bit integer
-  }
-  return hash.toString();
+export const hashPassword = async (password: string): Promise<string> => {
+  const saltRounds = 12; // Industry standard for bcrypt
+  return await bcrypt.hash(password, saltRounds);
+};
+
+/**
+ * Verify password against hash
+ */
+export const verifyPassword = async (password: string, hash: string): Promise<boolean> => {
+  return await bcrypt.compare(password, hash);
 };
 
 /**

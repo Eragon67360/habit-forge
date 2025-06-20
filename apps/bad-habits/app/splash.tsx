@@ -1,7 +1,7 @@
 import { APP_CONFIG, getThemeColors } from '@/constants/Data';
 import { useAppStore } from '@/store/useAppStore';
 import { router } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import {
   ActivityIndicator,
   StyleSheet,
@@ -11,7 +11,6 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SplashScreen() {
-  const [isLoading, setIsLoading] = useState(true);
   const { user, currentTheme } = useAppStore();
 
   // Get theme-aware colors
@@ -20,33 +19,24 @@ export default function SplashScreen() {
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        console.log('Splash: Starting initialization, user:', user);
-        
         // Simulate loading time for better UX
         await new Promise(resolve => setTimeout(resolve, 2000));
         
         // Check if user exists in storage
         if (user) {
-          console.log('Splash: User exists, hasPassword:', user.hasPassword);
           // User exists, check if password protection is needed
           if (user.hasPassword) {
-            console.log('Splash: Navigating to auth');
             router.replace('/auth');
           } else {
-            console.log('Splash: Navigating to main app');
             router.replace('/(tabs)');
           }
         } else {
-          console.log('Splash: No user, navigating to onboarding');
           // No user exists, go to onboarding
           router.replace('/onboarding');
         }
-      } catch (error) {
-        console.error('Error initializing app:', error);
+      } catch {
         // Fallback to onboarding on error
         router.replace('/onboarding');
-      } finally {
-        setIsLoading(false);
       }
     };
 

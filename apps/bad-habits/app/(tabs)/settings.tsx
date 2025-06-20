@@ -1,7 +1,7 @@
 import { APP_CONFIG, getThemeColors } from '@/constants/Data';
 import { useAppStore } from '@/store/useAppStore';
 import { NotificationSettings } from '@/types';
-import { hashPassword, validatePassword } from '@/utils/helpers';
+import { hashPassword, validatePassword, verifyPassword } from '@/utils/helpers';
 import React, { useState } from 'react';
 import {
   Alert,
@@ -336,12 +336,15 @@ export default function SettingsScreen() {
     }
   };
 
-  const handlePasswordChange = () => {
+  const handlePasswordChange = async () => {
     const errors: Record<string, string> = {};
     
     // Validate current password
-    if (user?.hasPassword && user.passwordHash !== hashPassword(currentPassword)) {
-      errors.currentPassword = 'Current password is incorrect';
+    if (user?.hasPassword && user.passwordHash) {
+      const isCurrentPasswordValid = await verifyPassword(currentPassword, user.passwordHash);
+      if (!isCurrentPasswordValid) {
+        errors.currentPassword = 'Current password is incorrect';
+      }
     }
     
     // Validate new password
@@ -358,17 +361,22 @@ export default function SettingsScreen() {
     setPasswordErrors(errors);
     
     if (Object.keys(errors).length === 0) {
-      // Update password
-      updateUser({
-        hasPassword: true,
-        passwordHash: hashPassword(newPassword),
-      });
-      Alert.alert('Success', 'Password updated successfully!');
-      setShowPasswordModal(false);
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
-      setPasswordErrors({});
+      try {
+        // Update password
+        const hashedPassword = await hashPassword(newPassword);
+        updateUser({
+          hasPassword: true,
+          passwordHash: hashedPassword,
+        });
+        Alert.alert('Success', 'Password updated successfully!');
+        setShowPasswordModal(false);
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+        setPasswordErrors({});
+      } catch {
+        Alert.alert('Error', 'Failed to update password. Please try again.');
+      }
     }
   };
 

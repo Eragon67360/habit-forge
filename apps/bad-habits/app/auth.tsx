@@ -1,17 +1,17 @@
 import { getThemeColors } from '@/constants/Data';
 import { useAppStore } from '@/store/useAppStore';
-import { hashPassword } from '@/utils/helpers';
+import { verifyPassword } from '@/utils/helpers';
 import { router } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-    Alert,
-    Animated,
-    KeyboardAvoidingView,
-    Platform,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Animated,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -69,7 +69,7 @@ export default function AuthScreen() {
       // Simple delay to show loading state
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      if (user?.passwordHash === hashPassword(password)) {
+      if (user?.passwordHash && await verifyPassword(password, user.passwordHash)) {
         setAuthenticated(true);
         router.replace('/(tabs)');
       } else {
@@ -77,7 +77,7 @@ export default function AuthScreen() {
         shakeInput();
         // Removed Alert - just shake animation and clear input
       }
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Authentication failed. Please try again.');
     } finally {
       setIsLoading(false);
