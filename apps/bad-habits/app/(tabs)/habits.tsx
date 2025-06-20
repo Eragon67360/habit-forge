@@ -253,35 +253,40 @@ export default function HabitsScreen() {
     return (
       <View key={habit.id} style={styles.habitCard}>
         <View style={styles.habitHeader}>
-          <View style={styles.habitInfo}>
-            <View style={styles.habitIconContainer}>
-              <Text style={styles.habitIcon}>{category.icon}</Text>
-            </View>
-            <View style={styles.habitText}>
-              <Text style={styles.habitName}>{habit.name}</Text>
-              <Text style={styles.habitCategory}>{category.name}</Text>
-              {habit.description && (
-                <Text style={styles.habitDescription}>{habit.description}</Text>
-              )}
-            </View>
+          <View style={styles.habitIconContainer}>
+            <Text style={styles.habitIcon}>{category.icon}</Text>
           </View>
-          <View style={styles.habitStatus}>
-            <View style={[
-              styles.statusIndicator,
-              habit.isActive ? styles.statusActive : styles.statusInactive,
+          
+          <View style={styles.habitInfo}>
+            <Text style={styles.habitName}>{habit.name}</Text>
+            <Text style={styles.habitCategory}>{category.name}</Text>
+          </View>
+          
+          <View style={[
+            styles.statusBadge,
+            habit.isActive ? styles.statusActive : styles.statusInactive,
+          ]}>
+            <Text style={[
+              styles.statusText,
+              habit.isActive ? styles.statusTextActive : styles.statusTextInactive,
             ]}>
-              <Text style={styles.statusText}>
-                {habit.isActive ? 'Active' : 'Inactive'}
-              </Text>
-            </View>
+              {habit.isActive ? 'Active' : 'Inactive'}
+            </Text>
           </View>
         </View>
+        
+        {habit.description && (
+          <Text style={styles.habitDescription}>{habit.description}</Text>
+        )}
         
         <View style={styles.habitStats}>
           <View style={styles.statItem}>
             <Text style={styles.statNumber}>{habit.streak}</Text>
             <Text style={styles.statLabel}>Day Streak</Text>
           </View>
+          
+          <View style={styles.statDivider} />
+          
           <View style={styles.statItem}>
             <Text style={styles.statNumber}>
               {habit.lastCheckIn ? formatDate(habit.lastCheckIn) : 'Never'}
@@ -292,29 +297,28 @@ export default function HabitsScreen() {
         
         <View style={styles.habitActions}>
           <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => {
-              // Edit functionality
-              Alert.alert('Edit Habit', 'Edit functionality will be implemented soon.');
-            }}
-          >
-            <Text style={styles.actionButtonText}>Edit</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity
-            style={styles.actionButton}
+            style={[styles.actionButton, styles.primaryAction]}
             onPress={() => handleToggleHabit(habit.id)}
           >
-            <Text style={styles.actionButtonText}>
+            <Text style={styles.primaryActionText}>
               {habit.isActive ? 'Deactivate' : 'Activate'}
             </Text>
           </TouchableOpacity>
           
           <TouchableOpacity
-            style={[styles.actionButton, styles.deleteAction]}
+            style={[styles.actionButton, styles.secondaryAction]}
+            onPress={() => {
+              Alert.alert('Edit Habit', 'Edit functionality will be implemented soon.');
+            }}
+          >
+            <Text style={styles.secondaryActionText}>Edit</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            style={[styles.actionButton, styles.dangerAction]}
             onPress={() => handleDeleteHabit(habit)}
           >
-            <Text style={[styles.actionButtonText, styles.deleteActionText]}>Delete</Text>
+            <Text style={styles.dangerActionText}>Delete</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -341,7 +345,6 @@ export default function HabitsScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Mode Toggle */}
         <View style={styles.modeToggle}>
           <TouchableOpacity
             style={[
@@ -376,7 +379,6 @@ export default function HabitsScreen() {
         <ScrollView style={styles.modalContent}>
           {addMode === 'custom' ? (
             <>
-              {/* Habit Name */}
               <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>HABIT NAME *</Text>
                 <TextInput
@@ -390,7 +392,6 @@ export default function HabitsScreen() {
                 {habitErrors.name && <Text style={styles.errorText}>{habitErrors.name}</Text>}
               </View>
 
-              {/* Description */}
               <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>DESCRIPTION (OPTIONAL)</Text>
                 <TextInput
@@ -406,7 +407,6 @@ export default function HabitsScreen() {
                 {habitErrors.description && <Text style={styles.errorText}>{habitErrors.description}</Text>}
               </View>
 
-              {/* Category Selection */}
               <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>CATEGORY</Text>
                 <View style={styles.categoryGrid}>
@@ -431,7 +431,6 @@ export default function HabitsScreen() {
                 </View>
               </View>
 
-              {/* Type Selection */}
               <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>HABIT TYPE</Text>
                 <View style={styles.typeSelector}>
@@ -466,7 +465,6 @@ export default function HabitsScreen() {
                 </View>
               </View>
 
-              {/* Frequency Selection */}
               <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>FREQUENCY</Text>
                 <View style={styles.frequencySelector}>
@@ -490,7 +488,6 @@ export default function HabitsScreen() {
                 </View>
               </View>
 
-              {/* Create Button */}
               <TouchableOpacity
                 style={styles.createButton}
                 onPress={handleCreateHabit}
@@ -500,7 +497,6 @@ export default function HabitsScreen() {
             </>
           ) : (
             <>
-              {/* Predefined Habits */}
               <View style={styles.predefinedGrid}>
                 {PREDEFINED_HABITS.map((predefinedHabit, index) => (
                   <TouchableOpacity
@@ -533,7 +529,6 @@ export default function HabitsScreen() {
     </Modal>
   );
 
-  // Create styles with current theme colors
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -543,67 +538,74 @@ export default function HabitsScreen() {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      padding: 20,
-      paddingBottom: 8,
+      paddingHorizontal: 20,
+      paddingVertical: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: COLORS.border,
     },
     title: {
       fontSize: 28,
-      fontWeight: 'bold',
+      fontWeight: '700',
       color: COLORS.text,
     },
     addButton: {
       backgroundColor: COLORS.primary,
       paddingHorizontal: 16,
       paddingVertical: 8,
-      borderRadius: 25,
+      borderRadius: 20,
     },
     addButtonText: {
       color: 'white',
+      fontSize: 14,
       fontWeight: '600',
     },
     searchContainer: {
       paddingHorizontal: 20,
-      marginBottom: 12,
+      paddingVertical: 4,
     },
     searchInput: {
       backgroundColor: COLORS.card,
       borderWidth: 1,
       borderColor: COLORS.border,
       borderRadius: 12,
-      padding: 12,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
       fontSize: 16,
       color: COLORS.text,
     },
     filterContainer: {
-      marginBottom: 8,
-      maxHeight: 50,
+      paddingHorizontal: 20,
+      marginBlock:8,
+      height: 52,
     },
     filterContent: {
-      paddingHorizontal: 20,
-      gap: 8,
+      paddingRight: 20,
+      alignItems: 'center',
     },
     filterChip: {
       flexDirection: 'row',
       alignItems: 'center',
-      paddingHorizontal: 12,
+      paddingHorizontal: 10,
       paddingVertical: 6,
-      borderRadius: 20,
+      borderRadius: 16,
       backgroundColor: COLORS.card,
       borderWidth: 1,
       borderColor: COLORS.border,
+      marginRight: 8,
       gap: 4,
       height: 32,
     },
     filterChipActive: {
-      backgroundColor: COLORS.primary + '20',
+      backgroundColor: COLORS.primary + '15',
       borderColor: COLORS.primary,
     },
     filterChipIcon: {
-      fontSize: 16,
+      fontSize: 12,
     },
     filterChipText: {
-      fontSize: 14,
+      fontSize: 13,
       color: COLORS.text,
+      fontWeight: '500',
     },
     filterChipTextActive: {
       color: COLORS.primary,
@@ -612,112 +614,141 @@ export default function HabitsScreen() {
     typeFilterContainer: {
       flexDirection: 'row',
       paddingHorizontal: 20,
-      marginBottom: 12,
+      marginBottom: 8,
       gap: 8,
+      height: 40,
     },
     typeChip: {
-      paddingHorizontal: 12,
+      flex: 1,
+      paddingHorizontal: 10,
       paddingVertical: 6,
-      borderRadius: 20,
+      borderRadius: 16,
       backgroundColor: COLORS.card,
       borderWidth: 1,
       borderColor: COLORS.border,
-      gap: 4,
+      alignItems: 'center',
       height: 32,
     },
     typeChipActive: {
-      backgroundColor: COLORS.primary + '20',
+      backgroundColor: COLORS.primary + '15',
       borderColor: COLORS.primary,
     },
     typeChipText: {
-      fontSize: 14,
+      fontSize: 13,
       color: COLORS.text,
+      fontWeight: '500',
     },
     typeChipTextActive: {
       color: COLORS.primary,
       fontWeight: '600',
     },
     content: {
-      flex: 1,
       paddingHorizontal: 20,
     },
     habitCard: {
       backgroundColor: COLORS.card,
-      borderRadius: 12,
-      padding: 16,
-      marginBottom: 12,
+      borderRadius: 16,
+      padding: 20,
+      marginBottom: 16,
       borderWidth: 1,
       borderColor: COLORS.border,
+      shadowColor: COLORS.text,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.05,
+      shadowRadius: 8,
+      elevation: 2,
     },
     habitHeader: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'flex-start',
+      alignItems: 'center',
       marginBottom: 12,
     },
-    habitInfo: {
-      flexDirection: 'row',
-      flex: 1,
-    },
     habitIconContainer: {
-      marginRight: 12,
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      backgroundColor: COLORS.primary + '15',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: 16,
     },
     habitIcon: {
-      fontSize: 24,
+      fontSize: 20,
     },
-    habitText: {
+    habitInfo: {
       flex: 1,
     },
     habitName: {
-      fontSize: 16,
+      fontSize: 18,
       fontWeight: '600',
       color: COLORS.text,
-      marginBottom: 2,
+      marginBottom: 4,
     },
     habitCategory: {
       fontSize: 14,
       color: COLORS.textSecondary,
-      marginBottom: 4,
+      fontWeight: '500',
     },
     habitDescription: {
       fontSize: 14,
       color: COLORS.textSecondary,
-      fontStyle: 'italic',
+      lineHeight: 20,
+      marginBottom: 16,
+      paddingLeft: 64, // Align with habit name
     },
-    habitStatus: {
-      marginLeft: 12,
-    },
-    statusIndicator: {
-      paddingHorizontal: 8,
-      paddingVertical: 4,
-      borderRadius: 12,
+    statusBadge: {
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 16,
+      borderWidth: 1,
     },
     statusActive: {
-      backgroundColor: COLORS.success + '20',
+      backgroundColor: COLORS.success + '15',
+      borderColor: COLORS.success + '30',
     },
     statusInactive: {
-      backgroundColor: COLORS.textSecondary + '20',
+      backgroundColor: COLORS.textSecondary + '15',
+      borderColor: COLORS.textSecondary + '30',
     },
     statusText: {
       fontSize: 12,
       fontWeight: '600',
     },
+    statusTextActive: {
+      color: COLORS.success,
+    },
+    statusTextInactive: {
+      color: COLORS.textSecondary,
+    },
     habitStats: {
       flexDirection: 'row',
-      marginBottom: 12,
-      gap: 16,
+      alignItems: 'center',
+      marginBottom: 20,
+      paddingVertical: 16,
+      paddingHorizontal: 16,
+      backgroundColor: COLORS.background,
+      borderRadius: 12,
     },
     statItem: {
+      flex: 1,
       alignItems: 'center',
     },
     statNumber: {
-      fontSize: 16,
-      fontWeight: 'bold',
+      fontSize: 20,
+      fontWeight: '700',
       color: COLORS.primary,
+      marginBottom: 4,
     },
     statLabel: {
       fontSize: 12,
       color: COLORS.textSecondary,
+      fontWeight: '500',
+    },
+    statDivider: {
+      width: 1,
+      height: 32,
+      backgroundColor: COLORS.border,
+      marginHorizontal: 16,
     },
     habitActions: {
       flexDirection: 'row',
@@ -725,37 +756,57 @@ export default function HabitsScreen() {
     },
     actionButton: {
       flex: 1,
-      padding: 8,
-      borderRadius: 6,
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      borderRadius: 12,
       alignItems: 'center',
+      borderWidth: 1,
     },
-    actionButtonText: {
-      color: COLORS.text,
-      fontSize: 12,
+    primaryAction: {
+      backgroundColor: COLORS.primary + '15',
+      borderColor: COLORS.primary + '30',
+    },
+    primaryActionText: {
+      color: COLORS.primary,
+      fontSize: 14,
       fontWeight: '600',
     },
-    deleteAction: {
-      backgroundColor: COLORS.error + '20',
-      borderWidth: 1,
-      borderColor: COLORS.error,
+    secondaryAction: {
+      backgroundColor: COLORS.card,
+      borderColor: COLORS.border,
     },
-    deleteActionText: {
+    secondaryActionText: {
+      color: COLORS.text,
+      fontSize: 14,
+      fontWeight: '600',
+    },
+    dangerAction: {
+      backgroundColor: COLORS.error + '15',
+      borderColor: COLORS.error + '30',
+    },
+    dangerActionText: {
       color: COLORS.error,
+      fontSize: 14,
+      fontWeight: '600',
     },
     emptyState: {
       alignItems: 'center',
-      padding: 40,
+      padding: 60,
+      flex: 1,
+      justifyContent: 'center',
     },
     emptyStateText: {
-      fontSize: 18,
+      fontSize: 20,
       fontWeight: '600',
-      color: COLORS.textSecondary,
+      color: COLORS.text,
       marginBottom: 8,
+      textAlign: 'center',
     },
     emptyStateSubtext: {
-      fontSize: 14,
+      fontSize: 16,
       color: COLORS.textSecondary,
       textAlign: 'center',
+      lineHeight: 24,
     },
     modalContainer: {
       flex: 1,
@@ -771,22 +822,28 @@ export default function HabitsScreen() {
     },
     modalTitle: {
       fontSize: 20,
-      fontWeight: 'bold',
+      fontWeight: '700',
       color: COLORS.text,
     },
     closeButton: {
-      padding: 8,
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+      backgroundColor: COLORS.card,
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     closeButtonText: {
-      fontSize: 20,
+      fontSize: 18,
       color: COLORS.textSecondary,
+      fontWeight: '600',
     },
     modalContent: {
       flex: 1,
       padding: 20,
     },
     inputContainer: {
-      marginBottom: 16,
+      marginBottom: 20,
     },
     inputLabel: {
       fontSize: 14,
@@ -799,7 +856,7 @@ export default function HabitsScreen() {
       borderWidth: 1,
       borderColor: COLORS.border,
       borderRadius: 12,
-      padding: 12,
+      padding: 16,
       fontSize: 16,
       color: COLORS.text,
     },
@@ -811,10 +868,11 @@ export default function HabitsScreen() {
       borderWidth: 1,
       borderColor: COLORS.border,
       borderRadius: 12,
-      padding: 12,
+      padding: 16,
       fontSize: 16,
       color: COLORS.text,
       height: 100,
+      textAlignVertical: 'top',
     },
     errorText: {
       color: COLORS.error,
@@ -829,14 +887,15 @@ export default function HabitsScreen() {
     categoryOption: {
       flexDirection: 'row',
       alignItems: 'center',
-      padding: 8,
+      padding: 12,
       borderWidth: 1,
       borderColor: COLORS.border,
-      borderRadius: 8,
+      borderRadius: 12,
       backgroundColor: COLORS.card,
+      minWidth: '48%',
     },
     categoryOptionActive: {
-      backgroundColor: COLORS.primary + '20',
+      backgroundColor: COLORS.primary + '15',
       borderColor: COLORS.primary,
     },
     categoryIcon: {
@@ -846,6 +905,7 @@ export default function HabitsScreen() {
     categoryText: {
       fontSize: 14,
       color: COLORS.text,
+      fontWeight: '500',
     },
     categoryTextActive: {
       color: COLORS.primary,
@@ -857,20 +917,21 @@ export default function HabitsScreen() {
     },
     typeOption: {
       flex: 1,
-      padding: 8,
+      padding: 12,
       borderWidth: 1,
       borderColor: COLORS.border,
-      borderRadius: 8,
+      borderRadius: 12,
       backgroundColor: COLORS.card,
       alignItems: 'center',
     },
     typeOptionActive: {
-      backgroundColor: COLORS.primary + '20',
+      backgroundColor: COLORS.primary + '15',
       borderColor: COLORS.primary,
     },
     typeOptionText: {
       fontSize: 14,
       color: COLORS.text,
+      fontWeight: '500',
     },
     typeOptionTextActive: {
       color: COLORS.primary,
@@ -882,20 +943,21 @@ export default function HabitsScreen() {
     },
     frequencyOption: {
       flex: 1,
-      padding: 8,
+      padding: 12,
       borderWidth: 1,
       borderColor: COLORS.border,
-      borderRadius: 8,
+      borderRadius: 12,
       backgroundColor: COLORS.card,
       alignItems: 'center',
     },
     frequencyOptionActive: {
-      backgroundColor: COLORS.primary + '20',
+      backgroundColor: COLORS.primary + '15',
       borderColor: COLORS.primary,
     },
     frequencyOptionText: {
       fontSize: 14,
       color: COLORS.text,
+      fontWeight: '500',
     },
     frequencyOptionTextActive: {
       color: COLORS.primary,
@@ -904,8 +966,9 @@ export default function HabitsScreen() {
     createButton: {
       backgroundColor: COLORS.primary,
       padding: 16,
-      borderRadius: 25,
+      borderRadius: 12,
       alignItems: 'center',
+      marginTop: 20,
     },
     createButtonText: {
       color: 'white',
@@ -915,21 +978,21 @@ export default function HabitsScreen() {
     modeToggle: {
       flexDirection: 'row',
       paddingHorizontal: 20,
-      marginBlock: 16,
+      marginVertical: 16,
       gap: 8,
     },
     modeOption: {
       flex: 1,
-      paddingVertical: 8,
-      paddingHorizontal: 12,
-      borderRadius: 8,
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      borderRadius: 12,
       backgroundColor: COLORS.card,
       borderWidth: 1,
       borderColor: COLORS.border,
       alignItems: 'center',
     },
     modeOptionActive: {
-      backgroundColor: COLORS.primary + '20',
+      backgroundColor: COLORS.primary + '15',
       borderColor: COLORS.primary,
     },
     modeOptionText: {
@@ -1044,7 +1107,6 @@ export default function HabitsScreen() {
   );
 }
 
-// Helper function for date formatting
 const formatDate = (date: Date): string => {
   const today = new Date();
   const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
