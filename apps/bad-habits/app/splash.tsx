@@ -1,0 +1,156 @@
+import { APP_CONFIG, getThemeColors } from '@/constants/Data';
+import { useAppStore } from '@/store/useAppStore';
+import { router } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import {
+    ActivityIndicator,
+    StyleSheet,
+    Text,
+    View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+export default function SplashScreen() {
+  const [isLoading, setIsLoading] = useState(true);
+  const { user, currentTheme } = useAppStore();
+
+  // Get theme-aware colors
+  const COLORS = getThemeColors(currentTheme === 'dark');
+
+  useEffect(() => {
+    const initializeApp = async () => {
+      try {
+        console.log('Splash: Starting initialization, user:', user);
+        
+        // Simulate loading time for better UX
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Check if user exists in storage
+        if (user) {
+          console.log('Splash: User exists, hasPassword:', user.hasPassword);
+          // User exists, check if password protection is needed
+          if (user.hasPassword) {
+            console.log('Splash: Navigating to auth');
+            router.replace('/auth');
+          } else {
+            console.log('Splash: Navigating to main app');
+            router.replace('/(tabs)');
+          }
+        } else {
+          console.log('Splash: No user, navigating to onboarding');
+          // No user exists, go to onboarding
+          router.replace('/onboarding');
+        }
+      } catch (error) {
+        console.error('Error initializing app:', error);
+        // Fallback to onboarding on error
+        router.replace('/onboarding');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeApp();
+  }, [user]);
+
+  // Create styles with current theme colors
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: COLORS.background,
+    },
+    content: {
+      flex: 1,
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: 40,
+    },
+    logoContainer: {
+      alignItems: 'center',
+      marginTop: 60,
+    },
+    logo: {
+      fontSize: 80,
+      marginBottom: 20,
+    },
+    appName: {
+      fontSize: 32,
+      fontWeight: 'bold',
+      color: COLORS.text,
+      marginBottom: 8,
+    },
+    tagline: {
+      fontSize: 16,
+      color: COLORS.textSecondary,
+      textAlign: 'center',
+      lineHeight: 24,
+    },
+    welcomeContainer: {
+      alignItems: 'center',
+      maxWidth: 300,
+    },
+    welcomeTitle: {
+      fontSize: 28,
+      fontWeight: 'bold',
+      color: COLORS.text,
+      marginBottom: 16,
+      textAlign: 'center',
+    },
+    welcomeMessage: {
+      fontSize: 16,
+      color: COLORS.textSecondary,
+      textAlign: 'center',
+      lineHeight: 24,
+    },
+    loadingContainer: {
+      alignItems: 'center',
+    },
+    loadingText: {
+      fontSize: 14,
+      color: COLORS.textSecondary,
+      marginTop: 12,
+    },
+    footer: {
+      alignItems: 'center',
+      marginBottom: 20,
+    },
+    footerText: {
+      fontSize: 12,
+      color: COLORS.textSecondary,
+    },
+  });
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.content}>
+        {/* Logo/Brand */}
+        <View style={styles.logoContainer}>
+          <Text style={styles.logo}>🌟</Text>
+          <Text style={styles.appName}>{APP_CONFIG.name}</Text>
+          <Text style={styles.tagline}>Track your habits, transform your life</Text>
+        </View>
+
+        {/* Welcome Message */}
+        <View style={styles.welcomeContainer}>
+          <Text style={styles.welcomeTitle}>Welcome!</Text>
+          <Text style={styles.welcomeMessage}>
+            We&apos;re getting everything ready for your journey to better habits.
+          </Text>
+        </View>
+
+        {/* Loading Indicator */}
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+          <Text style={styles.loadingText}>Loading...</Text>
+        </View>
+
+        {/* Developer Info */}
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>
+            Built with ❤️ by {APP_CONFIG.developer}
+          </Text>
+        </View>
+      </View>
+    </SafeAreaView>
+  );
+} 
