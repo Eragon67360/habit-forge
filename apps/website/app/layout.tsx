@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL("https://habitforge.app"),
+  metadataBase: new URL("https://habitforge.fr"),
   alternates: {
     canonical: "/",
   },
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     title: "HabitForge - Your Journey to Better Habits Starts Here",
     description:
       "Transform your life by tracking and breaking bad habits with our intuitive app. Join thousands of users on their journey to self-improvement.",
-    url: "https://habitforge.app",
+    url: "https://habitforge.fr",
     siteName: "HabitForge",
     images: [
       {
@@ -81,10 +81,19 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <head>
-        <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+        <link
+          rel="icon"
+          type="image/png"
+          href="/favicon-96x96.png"
+          sizes="96x96"
+        />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <link rel="shortcut icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/apple-touch-icon.png"
+        />
         <meta name="apple-mobile-web-app-title" content="Habit Forge" />
         <link rel="manifest" href="/site.webmanifest" />
         <meta name="theme-color" content="#A076F9" />

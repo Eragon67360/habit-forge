@@ -16,7 +16,7 @@
 
 - **Rebranded from "Bad Habits" to "HabitForge"**
   - Updated all app references throughout the codebase
-  - Changed domain from `bad-habits-app.com` to `habitforge.app`
+  - Changed domain from `bad-habits-app.com` to `habitforge.fr`
   - Updated GitHub repository references
   - Modified all metadata, titles, and descriptions
   - Updated schema markup and SEO configuration
