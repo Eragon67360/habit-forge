@@ -34,7 +34,8 @@ export default function SplashScreen() {
           // No user exists, go to onboarding
           router.replace('/onboarding');
         }
-      } catch {
+      } catch (error) {
+        console.error('🌅 [splash] Error during initialization:', error);
         // Fallback to onboarding on error
         router.replace('/onboarding');
       }

@@ -1,6 +1,6 @@
 import { APP_CONFIG } from '@/constants/Data';
 import { ValidationError } from '@/types';
-import bcrypt from 'bcryptjs';
+import * as Crypto from 'expo-crypto';
 
 /**
  * Generate a unique ID for entities
@@ -10,18 +10,53 @@ export const generateId = (): string => {
 };
 
 /**
- * Secure password hashing using bcrypt
+ * Secure password hashing using expo-crypto (SHA-256)
+ * Note: For production apps, consider using a more secure method like PBKDF2
  */
 export const hashPassword = async (password: string): Promise<string> => {
-  const saltRounds = 12; // Industry standard for bcrypt
-  return await bcrypt.hash(password, saltRounds);
+  try {
+    // Ensure password is a valid string
+    if (typeof password !== 'string') {
+      throw new Error(`Password must be a string, got ${typeof password}`);
+    }
+    
+    if (password.length === 0) {
+      throw new Error('Password cannot be empty');
+    }
+    
+    // Add a salt to make the hash more secure
+    const salt = 'HabitForge_Salt_2024';
+    const saltedPassword = password + salt;
+    
+    const hashedPassword = await Crypto.digestStringAsync(
+      Crypto.CryptoDigestAlgorithm.SHA256,
+      saltedPassword
+    );
+    
+    return hashedPassword;
+  } catch (error) {
+    throw error;
+  }
 };
 
 /**
  * Verify password against hash
  */
 export const verifyPassword = async (password: string, hash: string): Promise<boolean> => {
-  return await bcrypt.compare(password, hash);
+  try {
+    // Hash the provided password with the same salt
+    const salt = 'HabitForge_Salt_2024';
+    const saltedPassword = password + salt;
+    
+    const newHash = await Crypto.digestStringAsync(
+      Crypto.CryptoDigestAlgorithm.SHA256,
+      saltedPassword
+    );
+    
+    return newHash === hash;
+  } catch (error) {
+    throw error;
+  }
 };
 
 /**

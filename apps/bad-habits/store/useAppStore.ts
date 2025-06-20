@@ -26,6 +26,33 @@ const jsonStorage = createJSONStorage(() => AsyncStorage, {
   },
 });
 
+// Custom storage to handle authentication state for users with passwords
+const customStorage = {
+  getItem: async (name: string) => {
+    const value = await AsyncStorage.getItem(name);
+    if (value) {
+      try {
+        const parsed = JSON.parse(value);
+        // Reset authentication for users with passwords
+        if (parsed.state && parsed.state.user && parsed.state.user.hasPassword) {
+          parsed.state.isAuthenticated = false;
+        }
+        return JSON.stringify(parsed);
+      } catch (error) {
+        console.error('🏪 [store] Error parsing stored state:', error);
+        return value;
+      }
+    }
+    return value;
+  },
+  setItem: async (name: string, value: string) => {
+    await AsyncStorage.setItem(name, value);
+  },
+  removeItem: async (name: string) => {
+    await AsyncStorage.removeItem(name);
+  },
+};
+
 function isSimpleMessageArray(arr: any[]): arr is string[] {
   return typeof arr[0] === 'string';
 }
@@ -77,6 +104,12 @@ interface AppStore extends AppState {
   getActiveHabits: () => Habit[];
   getTodayCheckIns: () => HabitCheckIn[];
   getEncouragingMessage: (type: 'achievement' | 'setback' | 'daily' | 'milestone', streak?: number) => string;
+  
+  // Reset authentication for testing (users with passwords should start unauthenticated)
+  resetAuthentication: () => void;
+  
+  // Initialize store - ensure users with passwords start unauthenticated
+  initializeStore: () => void;
 }
 
 const initialState: Omit<AppState, 'user' | 'habits' | 'checkIns' | 'milestones'> = {
@@ -97,11 +130,18 @@ export const useAppStore = create<AppStore>()(
       milestones: [],
 
       // Authentication actions
-      setUser: (user) => set({ user, isAuthenticated: true }),
+      setUser: (user) => {
+        // Only auto-authenticate users without password protection
+        const shouldAutoAuthenticate = !user.hasPassword;
+        set({ user, isAuthenticated: shouldAutoAuthenticate });
+      },
       
-      updateUser: (updates) => set((state) => ({
-        user: state.user ? { ...state.user, ...updates } : null,
-      })),
+      updateUser: (updates) => {
+        set((state) => {
+          const newUser = state.user ? { ...state.user, ...updates } : null;
+          return { user: newUser };
+        });
+      },
       
       logout: () => set({ 
         user: null, 
@@ -112,6 +152,11 @@ export const useAppStore = create<AppStore>()(
       }),
       
       setAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
+      
+      // Reset authentication for testing (users with passwords should start unauthenticated)
+      resetAuthentication: () => {
+        set({ isAuthenticated: false });
+      },
 
       // Habit actions
       addHabit: (habitData) => {
@@ -395,10 +440,18 @@ export const useAppStore = create<AppStore>()(
         
         return messageText;
       },
+
+      // Initialize store - ensure users with passwords start unauthenticated
+      initializeStore: () => {
+        const state = get();
+        if (state.user && state.user.hasPassword) {
+          set({ isAuthenticated: false });
+        }
+      },
     }),
     {
       name: APP_CONFIG.storageKey,
-      storage: jsonStorage,
+      storage: createJSONStorage(() => customStorage),
     }
   )
 ); 
