@@ -5,15 +5,15 @@ import { generateId, hashPassword, validatePassword, validateUsername } from '@/
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -130,20 +130,21 @@ export default function OnboardingScreen() {
   const renderStep1 = () => (
     <View style={styles.stepContainer}>
       <View style={styles.headerSection}>
-        <Text style={styles.title}>WELCOME TO BAD HABITS! 🌟</Text>
+        <Text style={styles.title}>WELCOME TO</Text>
+        <Text style={styles.title}>HABITFORGE</Text>
         <Text style={styles.subtitle}>
-          Let&apos;s get you started on your journey to better habits
+          Let&apos;s forge your path to better habits and personal growth
         </Text>
       </View>
       
       <View style={styles.formSection}>
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>CHOOSE A USERNAME</Text>
+          <Text style={styles.label}>CHOOSE A FORGE NAME</Text>
           <TextInput
             style={[styles.input, errors.username && styles.inputError]}
             value={username}
             onChangeText={setUsername}
-            placeholder="Enter your username"
+            placeholder="Enter your forge name"
             autoCapitalize="none"
             autoCorrect={false}
             maxLength={APP_CONFIG.usernameMaxLength}
@@ -163,9 +164,9 @@ export default function OnboardingScreen() {
   const renderStep2 = () => (
     <View style={styles.stepContainer}>
       <View style={styles.headerSection}>
-        <Text style={styles.title}>SECURITY SETUP 🔒</Text>
+        <Text style={styles.title}>SECURE YOUR FORGE 🔒</Text>
         <Text style={styles.subtitle}>
-          Optionally add a 6-digit password to protect your data
+          Optionally add a 6-digit password to protect your habit forge
         </Text>
       </View>
       
@@ -176,7 +177,7 @@ export default function OnboardingScreen() {
             onPress={() => setHasPassword(!hasPassword)}
           >
             <Text style={[styles.toggleText, hasPassword && styles.toggleTextActive]}>
-              {hasPassword ? '✓' : ''} USE PASSWORD PROTECTION
+              {hasPassword ? '✓' : ''} PROTECT MY FORGE
             </Text>
           </TouchableOpacity>
         </View>
@@ -184,7 +185,7 @@ export default function OnboardingScreen() {
         {hasPassword && (
           <>
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>6-DIGIT PASSWORD</Text>
+              <Text style={styles.label}>6-DIGIT FORGE KEY</Text>
               <TextInput
                 style={[styles.input, errors.password && styles.inputError]}
                 value={password}
@@ -198,7 +199,7 @@ export default function OnboardingScreen() {
             </View>
             
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>CONFIRM PASSWORD</Text>
+              <Text style={styles.label}>CONFIRM FORGE KEY</Text>
               <TextInput
                 style={[styles.input, errors.confirmPassword && styles.inputError]}
                 value={confirmPassword}
@@ -220,7 +221,7 @@ export default function OnboardingScreen() {
             <Text style={styles.secondaryButtonText}>BACK</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.primaryButton} onPress={handleNext}>
-            <Text style={styles.primaryButtonText}>GET STARTED</Text>
+            <Text style={styles.primaryButtonText}>START FORGING</Text>
           </TouchableOpacity>
         </View>
       </View>

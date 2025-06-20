@@ -216,11 +216,11 @@ export const HABIT_CATEGORIES = {
 
 // App configuration
 export const APP_CONFIG = {
-  name: 'Bad Habits',
+  name: 'HabitForge',
   version: '1.0.0',
   developer: 'Thomas Moser',
   contact: 'thomas-moser@orange.fr',
-  storageKey: 'bad-habits-storage',
+  storageKey: 'habitforge-storage',
   maxHabits: 20,
   maxNotesPerHabit: 50,
   passwordMinLength: 6,

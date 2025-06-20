@@ -3,10 +3,10 @@ import { useAppStore } from '@/store/useAppStore';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    StyleSheet,
-    Text,
-    View,
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -72,28 +72,31 @@ export default function SplashScreen() {
     logo: {
       fontSize: 80,
       marginBottom: 20,
+      color: COLORS.primary,
     },
     appName: {
-      fontSize: 32,
+      fontSize: 36,
       fontWeight: 'bold',
       color: COLORS.text,
       marginBottom: 8,
+      letterSpacing: 1,
     },
     tagline: {
       fontSize: 16,
       color: COLORS.textSecondary,
       textAlign: 'center',
       lineHeight: 24,
+      maxWidth: 280,
     },
     welcomeContainer: {
       alignItems: 'center',
       maxWidth: 300,
     },
     welcomeTitle: {
-      fontSize: 28,
+      fontSize: 24,
       fontWeight: 'bold',
       color: COLORS.text,
-      marginBottom: 16,
+      marginBottom: 12,
       textAlign: 'center',
     },
     welcomeMessage: {
@@ -125,29 +128,28 @@ export default function SplashScreen() {
       <View style={styles.content}>
         {/* Logo/Brand */}
         <View style={styles.logoContainer}>
-          <Text style={styles.logo}>🌟</Text>
-          <Text style={styles.appName}>{APP_CONFIG.name}</Text>
-          <Text style={styles.tagline}>Track your habits, transform your life</Text>
+          <Text style={styles.appName}>HabitForge</Text>
+          <Text style={styles.tagline}>Forge Your Best Self</Text>
         </View>
 
         {/* Welcome Message */}
         <View style={styles.welcomeContainer}>
-          <Text style={styles.welcomeTitle}>Welcome!</Text>
+          <Text style={styles.welcomeTitle}>Welcome to HabitForge</Text>
           <Text style={styles.welcomeMessage}>
-            We&apos;re getting everything ready for your journey to better habits.
+            Building better habits starts with a single step. Let&apos;s forge your path to success.
           </Text>
         </View>
 
         {/* Loading Indicator */}
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={COLORS.primary} />
-          <Text style={styles.loadingText}>Loading...</Text>
+          <Text style={styles.loadingText}>Preparing your forge...</Text>
         </View>
 
-        {/* Developer Info */}
+        {/* Version Info */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>
-            Built with ❤️ by {APP_CONFIG.developer}
+            Version {APP_CONFIG.version}
           </Text>
         </View>
       </View>

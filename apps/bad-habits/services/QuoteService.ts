@@ -125,7 +125,6 @@ class QuoteService {
       }
 
       const data = await response.json();
-      console.log('📋 Response data:', JSON.stringify(data, null, 2));
       
       // Check for refusal
       if (data.output && data.output[0] && data.output[0].content && data.output[0].content[0]) {
