@@ -11,7 +11,6 @@ import {
   Bell,
   Shield,
   Github,
-  Twitter,
   Mail,
   ArrowRight,
   CheckCircle,
@@ -127,7 +126,7 @@ export default function Home() {
             </motion.div>
 
             <motion.div
-              className="hidden md:flex space-x-8"
+              className="hidden md:flex space-x-6"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
@@ -156,13 +155,14 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.4 }}
+              className="ml-auto md:ml-0"
             >
               <a
                 href="#download"
-                className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:shadow-xl transition-all duration-300 hover:scale-105 inline-flex items-center gap-2"
+                className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-full text-xs font-medium hover:shadow-lg transition-all duration-300 hover:scale-105 inline-flex items-center gap-2"
               >
-                <Download className="w-4 h-4" />
-                Download Now
+                <Download className="w-3 h-3" />
+                Download
               </a>
             </motion.div>
           </div>
@@ -206,7 +206,7 @@ export default function Home() {
               >
                 <a
                   href="#download"
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center justify-center gap-3 group"
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 sm:px-8 py-4 rounded-full text-base sm:text-lg font-semibold hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center justify-center gap-3 group"
                 >
                   <Download className="w-5 h-5 group-hover:animate-bounce" />
                   Download for Free
@@ -214,7 +214,7 @@ export default function Home() {
                 </a>
                 <a
                   href="#features"
-                  className="border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 px-8 py-4 rounded-full text-lg font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-300 flex items-center justify-center gap-3"
+                  className="border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 px-6 sm:px-8 py-4 rounded-full text-base sm:text-lg font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-300 flex items-center justify-center gap-3"
                 >
                   <Play className="w-5 h-5" />
                   Watch Demo
@@ -222,7 +222,7 @@ export default function Home() {
               </motion.div>
 
               <motion.div
-                className="flex items-center gap-8 pt-4"
+                className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8 pt-4"
                 variants={fadeInUp}
               >
                 <div className="flex items-center gap-3">
@@ -230,7 +230,7 @@ export default function Home() {
                     {[1, 2, 3, 4, 5].map((i) => (
                       <div
                         key={i}
-                        className="w-10 h-10 bg-gradient-to-r from-purple-400 to-blue-500 rounded-full border-3 border-white dark:border-slate-800 shadow-lg"
+                        className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-purple-400 to-blue-500 rounded-full border-2 sm:border-3 border-white dark:border-slate-800 shadow-lg"
                       ></div>
                     ))}
                   </div>
@@ -249,7 +249,7 @@ export default function Home() {
                     {[1, 2, 3, 4, 5].map((i) => (
                       <Star
                         key={i}
-                        className="w-5 h-5 fill-yellow-400 text-yellow-400"
+                        className="w-4 h-4 sm:w-5 sm:h-5 fill-yellow-400 text-yellow-400"
                       />
                     ))}
                   </div>
@@ -293,7 +293,7 @@ export default function Home() {
       <section className="py-20 bg-white dark:bg-slate-900 border-y border-slate-200 dark:border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
-            className="grid md:grid-cols-3 gap-8"
+            className="grid grid-cols-1 md:grid-cols-3 gap-8"
             initial="initial"
             whileInView="animate"
             viewport={{ once: true }}
@@ -308,7 +308,7 @@ export default function Home() {
                 <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                   <Heart className="w-8 h-8 text-purple-600 dark:text-purple-400" />
                 </div>
-                <blockquote className="text-lg text-slate-700 dark:text-slate-300 mb-4 leading-relaxed italic">
+                <blockquote className="text-base sm:text-lg text-slate-700 dark:text-slate-300 mb-4 leading-relaxed italic">
                   &ldquo;{testimonial.quote}&rdquo;
                 </blockquote>
                 <div className="text-sm font-semibold text-slate-900 dark:text-white mb-2">
@@ -363,7 +363,9 @@ export default function Home() {
                 variants={fadeInUp}
               >
                 <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-slate-200 dark:border-slate-700 flex flex-col h-full">
-                  <div className={`w-14 h-14 bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                  <div
+                    className={`w-14 h-14 bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}
+                  >
                     <feature.icon className="w-7 h-7 text-white" />
                   </div>
                   <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">
@@ -669,27 +671,23 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              <a
-                href="#"
-                className="bg-white text-purple-600 px-8 py-4 rounded-full text-lg font-semibold hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center gap-3 group"
-              >
-                <Smartphone className="w-6 h-6" />
-                Download for iOS
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </a>
-              <a
-                href="#"
-                className="bg-white text-purple-600 px-8 py-4 rounded-full text-lg font-semibold hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center gap-3 group"
-              >
-                <Smartphone className="w-6 h-6" />
-                Download for Android
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </a>
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center">
+              <div className="bg-white/10 backdrop-blur-sm text-white px-6 sm:px-8 py-4 rounded-full text-base sm:text-lg font-semibold border border-white/20 flex items-center gap-3 w-full sm:w-auto justify-center">
+                <Smartphone className="w-5 h-5 sm:w-6 sm:h-6" />
+                Available Soon
+                <span className="text-sm opacity-80">iOS</span>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm text-white px-6 sm:px-8 py-4 rounded-full text-base sm:text-lg font-semibold border border-white/20 flex items-center gap-3 w-full sm:w-auto justify-center">
+                <Smartphone className="w-5 h-5 sm:w-6 sm:h-6" />
+                Available Soon
+                <span className="text-sm opacity-80">Android</span>
+              </div>
             </div>
 
             <div className="text-purple-100">
-              <p className="text-sm">Available on App Store and Google Play</p>
+              <p className="text-sm">
+                Coming soon to App Store and Google Play
+              </p>
             </div>
           </motion.div>
         </div>
@@ -761,34 +759,12 @@ export default function Home() {
                     GitHub
                   </a>
                 </li>
-                <li>
-                  <a
-                    href="#community"
-                    className="hover:text-white transition-colors"
-                  >
-                    Discord
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#blog"
-                    className="hover:text-white transition-colors"
-                  >
-                    Blog
-                  </a>
-                </li>
               </ul>
             </div>
 
             <div>
               <h3 className="font-semibold mb-6 text-lg">Connect</h3>
               <div className="flex space-x-4">
-                <a
-                  href="#"
-                  className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 transition-all duration-300"
-                >
-                  <Twitter className="w-5 h-5" />
-                </a>
                 <a
                   href="https://github.com/Eragon67360/habit-forge"
                   target="_blank"
@@ -798,7 +774,7 @@ export default function Home() {
                   <Github className="w-5 h-5" />
                 </a>
                 <a
-                  href="#"
+                  href="mailto:thomas-moser@orange.fr"
                   className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 transition-all duration-300"
                 >
                   <Mail className="w-5 h-5" />
@@ -809,8 +785,15 @@ export default function Home() {
 
           <div className="border-t border-slate-800 pt-8 text-center text-slate-400">
             <p>
-              &copy; 2024 HabitForge. All rights reserved. Made with ❤️ by the
-              community.
+              &copy; 2024 HabitForge. All rights reserved. Made with ❤️ by{" "}
+              <a
+                href="https://www.linkedin.com/in/thomas-moser67"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-purple-400 hover:text-purple-300 transition-colors"
+              >
+                Thomas Moser
+              </a>
             </p>
           </div>
         </div>
