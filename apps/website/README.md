@@ -108,7 +108,7 @@ apps/website/
 Create a `.env.local` file for production settings:
 
 ```env
-NEXT_PUBLIC_SITE_URL=https://habitforge.app
+NEXT_PUBLIC_SITE_URL=https://habitforge.fr
 NEXT_PUBLIC_ANALYTICS_ID=your-analytics-id
 ```
 
@@ -194,7 +194,7 @@ This project is open source and available under the [MIT License](LICENSE).
 
 - **Issues**: [GitHub Issues](https://github.com/Eragon67360/habit-forge/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/Eragon67360/habit-forge/discussions)
-- **Email**: support@habitforge.app
+- **Email**: support@habitforge.fr
 
 ---
 

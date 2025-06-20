@@ -49,7 +49,7 @@
 Create `.env.local` for production:
 
 ```env
-NEXT_PUBLIC_SITE_URL=https://habitforge.app
+NEXT_PUBLIC_SITE_URL=https://habitforge.fr
 NEXT_PUBLIC_ANALYTICS_ID=your-analytics-id
 NEXT_PUBLIC_GITHUB_URL=https://github.com/your-repo/habitforge
 ```
@@ -97,7 +97,7 @@ After deployment, verify:
 
 1. **Google Search Console**
 
-   - Submit sitemap: `https://habitforge.app/sitemap.xml`
+   - Submit sitemap: `https://habitforge.fr/sitemap.xml`
    - Request indexing of main pages
 
 2. **Social Media Testing**
