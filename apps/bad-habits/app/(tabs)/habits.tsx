@@ -1,3 +1,8 @@
+import { AccessibleButton, AccessibleText } from '@/components/AccessibilityWrapper';
+import { AdvancedFilters } from '@/components/AdvancedFilters';
+import { AnalyticsChart } from '@/components/AnalyticsChart';
+import { AnimatedCard } from '@/components/AnimatedCard';
+import { IconSymbol } from '@/components/ui/IconSymbol';
 import { getThemeColors, HABIT_CATEGORIES, PREDEFINED_HABITS } from '@/constants/Data';
 import { useAppStore } from '@/store/useAppStore';
 import { Habit, HabitCategory } from '@/types';
@@ -18,6 +23,7 @@ export default function HabitsScreen() {
   const [selectedCategory, setSelectedCategory] = useState<HabitCategory | 'all'>('all');
   const [selectedType, setSelectedType] = useState<'all' | 'good' | 'bad'>('all');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [newHabit, setNewHabit] = useState({
     name: '',
@@ -29,6 +35,12 @@ export default function HabitsScreen() {
   });
   const [habitErrors, setHabitErrors] = useState<Record<string, string>>({});
   const [addMode, setAddMode] = useState<'custom' | 'predefined'>('custom');
+  const [advancedFilters, setAdvancedFilters] = useState({
+    dateRange: 'all' as 'all' | 'today' | 'week' | 'month',
+    sortBy: 'name' as 'name' | 'streak' | 'created',
+    sortOrder: 'asc' as 'asc' | 'desc',
+    showInactive: true,
+  });
   
   const {
     habits,
@@ -46,8 +58,28 @@ export default function HabitsScreen() {
     const matchesType = selectedType === 'all' || habit.type === selectedType;
     const matchesSearch = habit.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          habit.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesInactive = advancedFilters.showInactive || habit.isActive;
     
-    return matchesCategory && matchesType && matchesSearch;
+    return matchesCategory && matchesType && matchesSearch && matchesInactive;
+  });
+
+  // Sort habits based on advanced filters
+  const sortedHabits = [...filteredHabits].sort((a, b) => {
+    let comparison = 0;
+    
+    switch (advancedFilters.sortBy) {
+      case 'name':
+        comparison = a.name.localeCompare(b.name);
+        break;
+      case 'streak':
+        comparison = a.streak - b.streak;
+        break;
+      case 'created':
+        comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        break;
+    }
+    
+    return advancedFilters.sortOrder === 'asc' ? comparison : -comparison;
   });
 
   const handleToggleHabit = (habitId: string) => {
@@ -168,6 +200,9 @@ export default function HabitsScreen() {
           selectedCategory === 'all' && styles.filterChipActive,
         ]}
         onPress={() => setSelectedCategory('all')}
+        accessible={true}
+        accessibilityLabel="Show all categories"
+        accessibilityRole="button"
       >
         <Text style={[
           styles.filterChipText,
@@ -185,6 +220,9 @@ export default function HabitsScreen() {
             selectedCategory === key && styles.filterChipActive,
           ]}
           onPress={() => setSelectedCategory(key as HabitCategory)}
+          accessible={true}
+          accessibilityLabel={`Filter by ${category.name} category`}
+          accessibilityRole="button"
         >
           <Text style={styles.filterChipIcon}>{category.icon}</Text>
           <Text style={[
@@ -206,6 +244,9 @@ export default function HabitsScreen() {
           selectedType === 'all' && styles.typeChipActive,
         ]}
         onPress={() => setSelectedType('all')}
+        accessible={true}
+        accessibilityLabel="Show all habit types"
+        accessibilityRole="button"
       >
         <Text style={[
           styles.typeChipText,
@@ -221,6 +262,9 @@ export default function HabitsScreen() {
           selectedType === 'good' && styles.typeChipActive,
         ]}
         onPress={() => setSelectedType('good')}
+        accessible={true}
+        accessibilityLabel="Show only good habits"
+        accessibilityRole="button"
       >
         <Text style={[
           styles.typeChipText,
@@ -236,6 +280,9 @@ export default function HabitsScreen() {
           selectedType === 'bad' && styles.typeChipActive,
         ]}
         onPress={() => setSelectedType('bad')}
+        accessible={true}
+        accessibilityLabel="Show only bad habits"
+        accessibilityRole="button"
       >
         <Text style={[
           styles.typeChipText,
@@ -247,81 +294,98 @@ export default function HabitsScreen() {
     </View>
   );
 
-  const renderHabitCard = (habit: Habit) => {
+  const renderHabitCard = (habit: Habit, index: number) => {
     const category = HABIT_CATEGORIES[habit.category];
     
     return (
-      <View key={habit.id} style={styles.habitCard}>
-        <View style={styles.habitHeader}>
-          <View style={styles.habitIconContainer}>
-            <Text style={styles.habitIcon}>{category.icon}</Text>
-          </View>
-          
-          <View style={styles.habitInfo}>
-            <Text style={styles.habitName}>{habit.name}</Text>
-            <Text style={styles.habitCategory}>{category.name}</Text>
-          </View>
-          
-          <View style={[
-            styles.statusBadge,
-            habit.isActive ? styles.statusActive : styles.statusInactive,
-          ]}>
-            <Text style={[
-              styles.statusText,
-              habit.isActive ? styles.statusTextActive : styles.statusTextInactive,
+      <AnimatedCard
+        key={habit.id}
+        delay={index * 100}
+        style={{}}
+      >
+        <View>
+          <View style={styles.habitHeader}>
+            <View style={styles.habitIconContainer}>
+              <Text style={styles.habitIcon}>{category.icon}</Text>
+            </View>
+            <View style={styles.habitInfo}>
+              <AccessibleText
+                style={styles.habitName}
+                accessibilityRole="header"
+                accessibilityLabel={`Habit: ${habit.name}`}
+              >
+                {habit.name}
+              </AccessibleText>
+              <AccessibleText
+                style={styles.habitCategory}
+                accessibilityLabel={`Category: ${category.name}`}
+              >
+                {category.name}
+              </AccessibleText>
+            </View>
+            <View style={[
+              styles.statusBadge,
+              habit.isActive ? styles.statusActive : styles.statusInactive,
             ]}>
-              {habit.isActive ? 'Active' : 'Inactive'}
-            </Text>
+              <Text style={[
+                styles.statusText,
+                habit.isActive ? styles.statusTextActive : styles.statusTextInactive,
+              ]}>
+                {habit.isActive ? 'Active' : 'Inactive'}
+              </Text>
+            </View>
+          </View>
+          {habit.description && (
+            <AccessibleText
+              style={styles.habitDescription}
+              accessibilityLabel={`Description: ${habit.description}`}
+            >
+              {habit.description}
+            </AccessibleText>
+          )}
+          {habit.isActive && (
+            <AnalyticsChart habitId={habit.id} days={7} />
+          )}
+          <View style={styles.habitStats}>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>{habit.streak}</Text>
+              <Text style={styles.statLabel}>Day Streak</Text>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>
+                {habit.lastCheckIn ? formatDate(habit.lastCheckIn) : 'Never'}
+              </Text>
+              <Text style={styles.statLabel}>Last Check-in</Text>
+            </View>
+          </View>
+          <View style={styles.habitActions}>
+            <AccessibleButton
+              title={habit.isActive ? 'Deactivate' : 'Activate'}
+              onPress={() => handleToggleHabit(habit.id)}
+              hint={`${habit.isActive ? 'Deactivate' : 'Activate'} this habit`}
+              style={[styles.actionButton, styles.primaryAction]}
+              textStyle={styles.primaryActionText}
+            />
+            <AccessibleButton
+              title="Edit"
+              onPress={() => {
+                Alert.alert('Edit Habit', 'Edit functionality will be implemented soon.');
+              }}
+              hint="Edit this habit"
+              style={[styles.actionButton, styles.secondaryAction]}
+              textStyle={styles.secondaryActionText}
+            />
+            <AccessibleButton
+              title="Delete"
+              onPress={() => handleDeleteHabit(habit)}
+              hint="Delete this habit permanently"
+              style={[styles.actionButton, styles.dangerAction]}
+              textStyle={styles.dangerActionText}
+            />
           </View>
         </View>
-        
-        {habit.description && (
-          <Text style={styles.habitDescription}>{habit.description}</Text>
-        )}
-        
-        <View style={styles.habitStats}>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{habit.streak}</Text>
-            <Text style={styles.statLabel}>Day Streak</Text>
-          </View>
-          
-          <View style={styles.statDivider} />
-          
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>
-              {habit.lastCheckIn ? formatDate(habit.lastCheckIn) : 'Never'}
-            </Text>
-            <Text style={styles.statLabel}>Last Check-in</Text>
-          </View>
-        </View>
-        
-        <View style={styles.habitActions}>
-          <TouchableOpacity
-            style={[styles.actionButton, styles.primaryAction]}
-            onPress={() => handleToggleHabit(habit.id)}
-          >
-            <Text style={styles.primaryActionText}>
-              {habit.isActive ? 'Deactivate' : 'Activate'}
-            </Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity
-            style={[styles.actionButton, styles.secondaryAction]}
-            onPress={() => {
-              Alert.alert('Edit Habit', 'Edit functionality will be implemented soon.');
-            }}
-          >
-            <Text style={styles.secondaryActionText}>Edit</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity
-            style={[styles.actionButton, styles.dangerAction]}
-            onPress={() => handleDeleteHabit(habit)}
-          >
-            <Text style={styles.dangerActionText}>Delete</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      </AnimatedCard>
     );
   };
 
@@ -547,6 +611,15 @@ export default function HabitsScreen() {
       fontSize: 28,
       fontWeight: '700',
       color: COLORS.text,
+    },
+    headerActions: {
+      flexDirection: 'row',
+      gap: 8,
+    },
+    filterButton: {
+      padding: 8,
+      borderRadius: 16,
+      backgroundColor: COLORS.card,
     },
     addButton: {
       backgroundColor: COLORS.primary,
@@ -1066,12 +1139,26 @@ export default function HabitsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>My Habits</Text>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => setShowAddModal(true)}
-        >
-          <Text style={styles.addButtonText}>+ Add</Text>
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          <TouchableOpacity
+            style={styles.filterButton}
+            onPress={() => setShowAdvancedFilters(true)}
+            accessible={true}
+            accessibilityLabel="Open advanced filters"
+            accessibilityRole="button"
+          >
+            <IconSymbol name="chart.bar.fill" size={20} color={COLORS.primary} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => setShowAddModal(true)}
+            accessible={true}
+            accessibilityLabel="Add new habit"
+            accessibilityRole="button"
+          >
+            <Text style={styles.addButtonText}>+ Add</Text>
+          </TouchableOpacity>
+        </View>
       </View>
       
       <View style={styles.searchContainer}>
@@ -1081,6 +1168,9 @@ export default function HabitsScreen() {
           placeholderTextColor={COLORS.textSecondary}
           value={searchQuery}
           onChangeText={setSearchQuery}
+          accessible={true}
+          accessibilityLabel="Search habits"
+          accessibilityRole="search"
         />
       </View>
       
@@ -1088,7 +1178,7 @@ export default function HabitsScreen() {
       {renderTypeFilter()}
       
       <ScrollView style={styles.content}>
-        {filteredHabits.length === 0 ? (
+        {sortedHabits.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>No habits found</Text>
             <Text style={styles.emptyStateSubtext}>
@@ -1098,11 +1188,18 @@ export default function HabitsScreen() {
             </Text>
           </View>
         ) : (
-          filteredHabits.map(renderHabitCard)
+          sortedHabits.map((habit, index) => renderHabitCard(habit, index))
         )}
       </ScrollView>
       
       {renderAddHabitModal()}
+      
+      <AdvancedFilters
+        visible={showAdvancedFilters}
+        onClose={() => setShowAdvancedFilters(false)}
+        onApply={setAdvancedFilters}
+        currentFilters={advancedFilters}
+      />
     </SafeAreaView>
   );
 }
