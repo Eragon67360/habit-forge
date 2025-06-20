@@ -1,8 +1,11 @@
+import { HabitCard } from '@/components/HabitCard';
+import { QuoteCardSkeleton } from '@/components/SkeletonLoader';
 import { IconSymbol } from '@/components/ui/IconSymbol';
-import { getThemeColors, HABIT_CATEGORIES } from '@/constants/Data';
+import { getThemeColors } from '@/constants/Data';
 import { useAppStore } from '@/store/useAppStore';
 import { Habit, HabitCheckIn } from '@/types';
-import React, { useState } from 'react';
+import { haptics } from '@/utils/haptics';
+import React, { useCallback, useState } from 'react';
 import {
   Alert,
   Dimensions,
@@ -11,7 +14,6 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
   View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -22,6 +24,7 @@ const HEADER_HEIGHT = height / 2;
 
 export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   
   const {
     user,
@@ -39,15 +42,86 @@ export default function HomeScreen() {
   // Get theme-aware colors
   const COLORS = getThemeColors(currentTheme === 'dark');
 
-  const activeHabits = getActiveHabits();
+  const allActiveHabits = getActiveHabits();
   const todayCheckIns = getTodayCheckIns();
+
+  // Filter active habits based on search query
+  const activeHabits = allActiveHabits.filter((habit: Habit) => {
+    const matchesSearch = habit.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         habit.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesSearch;
+  });
 
   // Fetch quote only if we don't have one - this prevents infinite loops
   React.useEffect(() => {
     if (!dailyQuote) {
       fetchDailyQuote();
     }
-  }, []); // Empty dependency array - runs only once
+  }, [dailyQuote, fetchDailyQuote]);
+
+  // Memoize callback functions
+  const handleCheckIn = useCallback((habit: Habit, completed: boolean) => {
+    try {
+      const newCheckIn: Omit<HabitCheckIn, 'id'> = {
+        habitId: habit.id,
+        date: new Date(),
+        completed,
+        notes: '',
+      };
+
+      addCheckIn(newCheckIn);
+
+      // Show encouraging message
+      const message = completed
+        ? getEncouragingMessage('achievement', habit.streak + 1)
+        : getEncouragingMessage('setback');
+
+      if (message) {
+        Alert.alert(
+          completed ? 'Great job!' : 'Keep going!',
+          message,
+          [{ text: 'OK' }]
+        );
+      }
+    } catch {
+      Alert.alert('Error', 'Failed to check in. Please try again.');
+    }
+  }, [addCheckIn, getEncouragingMessage]);
+
+  const onRefresh = useCallback(async () => {
+    haptics.medium();
+    setRefreshing(true);
+    
+    try {
+      // Add a small delay to prevent rapid requests
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Force refresh the daily quote from AI (always get new quote regardless of day)
+      await forceRefreshQuote();
+      
+      // The store will automatically reload data from storage
+      // since Zustand persist middleware handles this
+      
+    } catch (error) {
+      console.error('Error refreshing content:', error);
+      
+      // Show user-friendly error message for rate limits
+      if (error instanceof Error && error.message.includes('Rate limit')) {
+        Alert.alert(
+          'Rate Limit Reached',
+          'You\'ve hit the API rate limit. Please wait 1-2 minutes before trying again, or consider upgrading your OpenAI plan for higher limits.',
+          [{ text: 'OK' }]
+        );
+      }
+    } finally {
+      setRefreshing(false);
+    }
+  }, [forceRefreshQuote]);
+
+  const handleSearchChange = useCallback((text: string) => {
+    setSearchQuery(text);
+    haptics.light();
+  }, []);
 
   // Create styles with current theme colors
   const styles = StyleSheet.create({
@@ -137,133 +211,12 @@ export default function HomeScreen() {
       marginTop: 0,
       paddingTop: 30,
       borderRadius: 20,
-
     },
     sectionTitle: {
       fontSize: 22,
       fontWeight: 'bold',
       color: COLORS.background,
       marginBottom: 16,
-    },
-    habitCard: {
-      backgroundColor: COLORS.card,
-      borderRadius: 20,
-      shadowColor: '#000000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.15,
-      shadowRadius: 12,
-      elevation: 8,
-      width: width * 0.66,
-      marginRight: 16,
-      marginBottom: 8,
-    },
-    habitCardImage: {
-      height: 120,
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderRadius: 20,
-    },
-    habitIcon: {
-      fontSize: 40,
-    },
-    habitCardContent: {
-      padding: 20,
-    },
-    habitCardHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'flex-start',
-    },
-    habitInfo: {
-      flex: 1,
-      marginRight: 12,
-    },
-    habitName: {
-      fontSize: 20,
-      fontWeight: 'bold',
-      color: COLORS.text,
-      marginBottom: 4,
-    },
-    habitCategory: {
-      fontSize: 14,
-      color: COLORS.textSecondary,
-    },
-    streakContainer: {
-      alignItems: 'center',
-      paddingHorizontal: 12,
-      paddingVertical: 6,
-      borderRadius: 12,
-      backgroundColor: COLORS.primary + '20',
-    },
-    streakText: {
-      fontSize: 22,
-      fontWeight: 'bold',
-      color: COLORS.text,
-    },
-    streakLabel: {
-      fontSize: 12,
-      color: COLORS.textSecondary,
-      fontWeight: '500',
-      marginTop: 2,
-    },
-    habitActions: {
-      flexDirection: 'row',
-      gap: 12,
-      marginTop: 20,
-      paddingHorizontal: 20,
-      paddingBottom: 20,
-    },
-    actionButton: {
-      flex: 1,
-      padding: 16,
-      borderRadius: 20,
-      alignItems: 'center',
-    },
-    completeButton: {
-      backgroundColor: COLORS.primary,
-    },
-    completeButtonText: {
-      color: '#FFFFFF',
-      fontWeight: 'bold',
-      fontSize: 16,
-    },
-    missButton: {
-      backgroundColor: COLORS.card,
-      borderWidth: 1,
-      borderColor: COLORS.border,
-    },
-    missButtonText: {
-      color: COLORS.text,
-      fontWeight: 'bold',
-      fontSize: 16,
-    },
-    completedStatus: {
-      flex: 1,
-      padding: 16,
-      backgroundColor: COLORS.primary + '20',
-      borderRadius: 12,
-      alignItems: 'center',
-      borderWidth: 1,
-      borderColor: COLORS.primary,
-    },
-    completedText: {
-      color: COLORS.primary,
-      fontWeight: 'bold',
-      fontSize: 16,
-    },
-    missedStatus: {
-      flex: 1,
-      padding: 16,
-      backgroundColor: COLORS.error + '20',
-      borderRadius: 12,
-      alignItems: 'center',
-      borderWidth: 1,
-      borderColor: COLORS.error,
-    },
-    missedText: {
-      color: COLORS.error,
-      fontWeight: 'bold',
-      fontSize: 16,
     },
     emptyState: {
       alignItems: 'center',
@@ -324,132 +277,6 @@ export default function HomeScreen() {
     },
   });
 
-  const onRefresh = async () => {
-    setRefreshing(true);
-    
-    try {
-      // Add a small delay to prevent rapid requests
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Force refresh the daily quote from AI (always get new quote regardless of day)
-      await forceRefreshQuote();
-      
-      // The store will automatically reload data from storage
-      // since Zustand persist middleware handles this
-      
-    } catch (error) {
-      console.error('Error refreshing content:', error);
-      
-      // Show user-friendly error message for rate limits
-      if (error instanceof Error && error.message.includes('Rate limit')) {
-        Alert.alert(
-          'Rate Limit Reached',
-          'You\'ve hit the API rate limit. Please wait 1-2 minutes before trying again, or consider upgrading your OpenAI plan for higher limits.',
-          [{ text: 'OK' }]
-        );
-      }
-    } finally {
-      setRefreshing(false);
-    }
-  };
-
-  const handleCheckIn = (habit: Habit, completed: boolean) => {
-    try {
-      const newCheckIn: Omit<HabitCheckIn, 'id'> = {
-        habitId: habit.id,
-        date: new Date(),
-        completed,
-        notes: '',
-      };
-
-      addCheckIn(newCheckIn);
-
-      // Show encouraging message
-      const message = completed
-        ? getEncouragingMessage('achievement', habit.streak + 1)
-        : getEncouragingMessage('setback');
-
-      if (message) {
-        Alert.alert(
-          completed ? 'Great job!' : 'Keep going!',
-          message,
-          [{ text: 'OK' }]
-        );
-      }
-    } catch (error) {
-      Alert.alert('Error', 'Failed to check in. Please try again.');
-    }
-  };
-
-  const getHabitStatus = (habit: Habit) => {
-    const todayCheckIn = todayCheckIns.find(
-      (checkIn: HabitCheckIn) => checkIn.habitId === habit.id
-    );
-    
-    if (todayCheckIn) {
-      return todayCheckIn.completed ? 'completed' : 'missed';
-    }
-    
-    return 'pending';
-  };
-
-  const renderHabitCard = (habit: Habit) => {
-    const status = getHabitStatus(habit);
-    const category = HABIT_CATEGORIES[habit.category];
-    
-    return (
-      <View key={habit.id} style={styles.habitCard}>
-        <View style={[styles.habitCardImage, { backgroundColor: category.color || `${COLORS.primary}30` }]}>
-          <Text style={styles.habitIcon}>{category.icon}</Text>
-        </View>
-
-        <View style={styles.habitCardContent}>
-          <View style={styles.habitCardHeader}>
-            <View style={styles.habitInfo}>
-              <Text style={styles.habitName}>{habit.name}</Text>
-              <Text style={styles.habitCategory}>{category.name}</Text>
-            </View>
-            <View style={styles.streakContainer}>
-              <Text style={styles.streakText}>{habit.streak}</Text>
-              <Text style={styles.streakLabel}>days</Text>
-            </View>
-          </View>
-        </View>
-        
-        <View style={styles.habitActions}>
-          {status === 'pending' && (
-            <>
-              <TouchableOpacity
-                style={[styles.actionButton, styles.completeButton]}
-                onPress={() => handleCheckIn(habit, true)}
-              >
-                <Text style={styles.completeButtonText}>Complete</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.actionButton, styles.missButton]}
-                onPress={() => handleCheckIn(habit, false)}
-              >
-                <Text style={styles.missButtonText}>Miss</Text>
-              </TouchableOpacity>
-            </>
-          )}
-          
-          {status === 'completed' && (
-            <View style={styles.completedStatus}>
-              <Text style={styles.completedText}>Completed!</Text>
-            </View>
-          )}
-          
-          {status === 'missed' && (
-            <View style={styles.missedStatus}>
-              <Text style={styles.missedText}>Missed</Text>
-            </View>
-          )}
-        </View>
-      </View>
-    );
-  };
-
   return (
     <View style={styles.container}>
       <View style={styles.headerBackground}>
@@ -499,6 +326,8 @@ export default function HomeScreen() {
                   placeholder="Search habits..."
                   placeholderTextColor={COLORS.textSecondary}
                   style={styles.searchInput}
+                  value={searchQuery}
+                  onChangeText={handleSearchChange}
                 />
               </View>
             </View>
@@ -509,9 +338,17 @@ export default function HomeScreen() {
             <Text style={styles.sectionTitle}>Today&apos;s Habits</Text>
             {activeHabits.length === 0 ? (
               <View style={styles.emptyState}>
-                <Text style={styles.emptyStateText}>You have no active habits.</Text>
+                <Text style={styles.emptyStateText}>
+                  {searchQuery 
+                    ? 'No habits found matching your search'
+                    : 'You have no active habits.'
+                  }
+                </Text>
                 <Text style={styles.emptyStateSubtext}>
-                  Use the plus button to add a habit.
+                  {searchQuery
+                    ? 'Try adjusting your search terms'
+                    : 'Use the plus button to add a habit.'
+                  }
                 </Text>
               </View>
             ) : (
@@ -521,35 +358,33 @@ export default function HomeScreen() {
                 style={{ marginHorizontal: -20 }}
                 contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 20 }}
               >
-                {activeHabits.map(renderHabitCard)}
+                {activeHabits.map((habit) => (
+                  <HabitCard
+                    key={habit.id}
+                    habit={habit}
+                    todayCheckIns={todayCheckIns}
+                    onCheckIn={handleCheckIn}
+                  />
+                ))}
               </ScrollView>
             )}
           </View>
           
           {/* Quote of the Day Section */}
           <View style={styles.quoteSection}>
-            <View style={styles.quoteCard}>
-              <Text style={styles.quoteIcon}>💭</Text>
-              {isQuoteLoading ? (
-                <>
-                  <Text style={styles.quoteText}>
-                    Loading new inspirational quote...
-                  </Text>
-                  <Text style={styles.quoteAuthor}>
-                    — AI is thinking...
-                  </Text>
-                </>
-              ) : (
-                <>
-                  <Text style={styles.quoteText}>
-                    {dailyQuote ? `${dailyQuote.text}` : 'Loading inspirational quote...'}
-                  </Text>
-                  <Text style={styles.quoteAuthor}>
-                    {dailyQuote ? `— ${dailyQuote.author}` : '— Loading...'}
-                  </Text>
-                </>
-              )}
-            </View>
+            {isQuoteLoading ? (
+              <QuoteCardSkeleton />
+            ) : (
+              <View style={styles.quoteCard}>
+                <Text style={styles.quoteIcon}>💭</Text>
+                <Text style={styles.quoteText}>
+                  {dailyQuote ? `${dailyQuote.text}` : 'Loading inspirational quote...'}
+                </Text>
+                <Text style={styles.quoteAuthor}>
+                  {dailyQuote ? `— ${dailyQuote.author}` : '— Loading...'}
+                </Text>
+              </View>
+            )}
           </View>
         </ScrollView>
       </SafeAreaView>

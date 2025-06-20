@@ -87,10 +87,8 @@ export default function OnboardingScreen() {
     }
   };
 
-  const createUser = () => {
+  const createUser = async () => {
     try {
-      console.log('Onboarding: Creating user with username:', username, 'hasPassword:', hasPassword);
-      
       const defaultPreferences: UserPreferences = {
         theme: 'auto',
         language: 'en',
@@ -108,21 +106,18 @@ export default function OnboardingScreen() {
         id: generateId(),
         username: username.trim(),
         hasPassword,
-        passwordHash: hasPassword ? hashPassword(password) : undefined,
+        passwordHash: hasPassword ? await hashPassword(password) : undefined,
         createdAt: new Date(),
         lastLoginAt: new Date(),
         preferences: defaultPreferences,
       };
 
-      console.log('Onboarding: Setting user in store');
       setUser(user);
       setAuthenticated(true);
       
-      console.log('Onboarding: Navigating to main app');
       // Navigate to main app
       router.replace('/(tabs)' as any);
-    } catch (error) {
-      console.error('Onboarding: Error creating user:', error);
+    } catch {
       Alert.alert('Error', 'Failed to create user. Please try again.');
     }
   };

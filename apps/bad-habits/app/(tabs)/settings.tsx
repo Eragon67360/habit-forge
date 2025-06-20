@@ -1,8 +1,9 @@
 import { APP_CONFIG, getThemeColors } from '@/constants/Data';
 import { useAppStore } from '@/store/useAppStore';
 import { NotificationSettings } from '@/types';
-import { hashPassword, validatePassword } from '@/utils/helpers';
-import React, { useState } from 'react';
+import { haptics } from '@/utils/haptics';
+import { hashPassword, validatePassword, verifyPassword } from '@/utils/helpers';
+import React, { useCallback, useState } from 'react';
 import {
   Alert,
   Modal,
@@ -230,22 +231,28 @@ export default function SettingsScreen() {
   });
 
   // Unified toggle component that looks consistent across platforms
-  const UnifiedToggle = ({ value, onValueChange, disabled = false }: {
+  const UnifiedToggle = React.memo(({ value, onValueChange, disabled = false }: {
     value: boolean;
     onValueChange: (value: boolean) => void;
     disabled?: boolean;
   }) => (
     <Switch
       value={value}
-      onValueChange={onValueChange}
+      onValueChange={(newValue) => {
+        haptics.toggleSwitch();
+        onValueChange(newValue);
+      }}
       disabled={disabled}
       trackColor={{ false: COLORS.border, true: COLORS.primary + '40' }}
       thumbColor={value ? COLORS.primary : COLORS.textSecondary}
       ios_backgroundColor={COLORS.border}
     />
-  );
+  ));
 
-  const handleResetAppData = () => {
+  UnifiedToggle.displayName = 'UnifiedToggle';
+
+  const handleResetAppData = useCallback(() => {
+    haptics.heavy();
     Alert.alert(
       'Reset App Data',
       'This will permanently delete ALL your data including user account, habits, streaks, settings, and preferences. You will need to set up the app again from scratch. This action cannot be undone.',
@@ -260,9 +267,10 @@ export default function SettingsScreen() {
         },
       ]
     );
-  };
+  }, [resetApp]);
 
-  const handleThemeChange = (theme: 'light' | 'dark' | 'auto') => {
+  const handleThemeChange = useCallback((theme: 'light' | 'dark' | 'auto') => {
+    haptics.buttonPress();
     updatePreferences({ theme });
     // Always set the theme immediately for better UX
     if (theme === 'auto') {
@@ -271,23 +279,26 @@ export default function SettingsScreen() {
     } else {
       setTheme(theme);
     }
-  };
+  }, [updatePreferences, setTheme]);
 
-  const handleNotificationToggle = (setting: keyof NotificationSettings) => {
+  const handleNotificationToggle = useCallback((setting: keyof NotificationSettings) => {
     if (!user) return;
     
+    haptics.toggleSwitch();
     const newSettings = {
       ...user.preferences.notifications,
       [setting]: !user.preferences.notifications[setting],
     };
     
     updateNotificationSettings(newSettings);
-  };
+  }, [user, updateNotificationSettings]);
 
-  const handlePasswordProtectionToggle = (value: boolean) => {
+  const handlePasswordProtectionToggle = useCallback((value: boolean) => {
     if (value) {
+      haptics.buttonPress();
       setShowPasswordModal(true);
     } else {
+      haptics.warning();
       Alert.alert(
         'Disable Password',
         'Are you sure you want to disable password protection?',
@@ -308,9 +319,9 @@ export default function SettingsScreen() {
         ]
       );
     }
-  };
+  }, [updateUser]);
 
-  const handleUsernameChange = () => {
+  const handleUsernameChange = useCallback(() => {
     const errors: Record<string, string> = {};
     
     // Validate username
@@ -325,6 +336,7 @@ export default function SettingsScreen() {
     setUsernameErrors(errors);
     
     if (Object.keys(errors).length === 0) {
+      haptics.formSubmit();
       // Update username
       updateUser({
         username: newUsername.trim(),
@@ -333,15 +345,20 @@ export default function SettingsScreen() {
       setShowUsernameModal(false);
       setNewUsername('');
       setUsernameErrors({});
+    } else {
+      haptics.formError();
     }
-  };
+  }, [newUsername, updateUser]);
 
-  const handlePasswordChange = () => {
+  const handlePasswordChange = useCallback(async () => {
     const errors: Record<string, string> = {};
     
     // Validate current password
-    if (user?.hasPassword && user.passwordHash !== hashPassword(currentPassword)) {
-      errors.currentPassword = 'Current password is incorrect';
+    if (user?.hasPassword && user.passwordHash) {
+      const isCurrentPasswordValid = await verifyPassword(currentPassword, user.passwordHash);
+      if (!isCurrentPasswordValid) {
+        errors.currentPassword = 'Current password is incorrect';
+      }
     }
     
     // Validate new password
@@ -358,21 +375,30 @@ export default function SettingsScreen() {
     setPasswordErrors(errors);
     
     if (Object.keys(errors).length === 0) {
-      // Update password
-      updateUser({
-        hasPassword: true,
-        passwordHash: hashPassword(newPassword),
-      });
-      Alert.alert('Success', 'Password updated successfully!');
-      setShowPasswordModal(false);
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
-      setPasswordErrors({});
+      try {
+        haptics.formSubmit();
+        // Update password
+        const hashedPassword = await hashPassword(newPassword);
+        updateUser({
+          hasPassword: true,
+          passwordHash: hashedPassword,
+        });
+        Alert.alert('Success', 'Password updated successfully!');
+        setShowPasswordModal(false);
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+        setPasswordErrors({});
+      } catch {
+        haptics.formError();
+        Alert.alert('Error', 'Failed to update password. Please try again.');
+      }
+    } else {
+      haptics.formError();
     }
-  };
+  }, [currentPassword, newPassword, confirmPassword, user, updateUser]);
 
-  const renderSettingItem = (
+  const renderSettingItem = useCallback((
     title: string,
     subtitle?: string,
     rightElement?: React.ReactNode,
@@ -381,8 +407,14 @@ export default function SettingsScreen() {
   ) => (
     <TouchableOpacity
       style={styles.settingItem}
-      onPress={onPress}
+      onPress={() => {
+        if (onPress) {
+          haptics.buttonPress();
+          onPress();
+        }
+      }}
       disabled={!onPress}
+      activeOpacity={0.7}
     >
       <View style={styles.settingContent}>
         <Text style={[styles.settingTitle, isDestructive && styles.destructiveText]}>{title}</Text>
@@ -390,16 +422,16 @@ export default function SettingsScreen() {
       </View>
       {rightElement && <View style={styles.settingRight}>{rightElement}</View>}
     </TouchableOpacity>
-  );
+  ), [styles]);
 
-  const renderSection = (title: string, children: React.ReactNode) => (
+  const renderSection = useCallback((title: string, children: React.ReactNode) => (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>{title}</Text>
       <View style={styles.sectionContent}>
         {children}
       </View>
     </View>
-  );
+  ), [styles]);
 
   if (!user) {
     return null;
@@ -452,6 +484,7 @@ export default function SettingsScreen() {
                       currentTheme === theme && styles.themeOptionActive,
                     ]}
                     onPress={() => handleThemeChange(theme)}
+                    activeOpacity={0.7}
                   >
                     <Text style={[
                       styles.themeOptionText,
@@ -558,10 +591,12 @@ export default function SettingsScreen() {
             <TouchableOpacity
               style={styles.closeButton}
               onPress={() => {
+                haptics.buttonPress();
                 setShowUsernameModal(false);
                 setNewUsername('');
                 setUsernameErrors({});
               }}
+              activeOpacity={0.7}
             >
               <Text style={styles.closeButtonText}>✕</Text>
             </TouchableOpacity>
@@ -587,6 +622,7 @@ export default function SettingsScreen() {
             <TouchableOpacity
               style={styles.saveButton}
               onPress={handleUsernameChange}
+              activeOpacity={0.8}
             >
               <Text style={styles.saveButtonText}>SAVE USERNAME</Text>
             </TouchableOpacity>
@@ -608,12 +644,14 @@ export default function SettingsScreen() {
             <TouchableOpacity
               style={styles.closeButton}
               onPress={() => {
+                haptics.buttonPress();
                 setShowPasswordModal(false);
                 setCurrentPassword('');
                 setNewPassword('');
                 setConfirmPassword('');
                 setPasswordErrors({});
               }}
+              activeOpacity={0.7}
             >
               <Text style={styles.closeButtonText}>✕</Text>
             </TouchableOpacity>
@@ -673,6 +711,7 @@ export default function SettingsScreen() {
             <TouchableOpacity
               style={styles.saveButton}
               onPress={handlePasswordChange}
+              activeOpacity={0.8}
             >
               <Text style={styles.saveButtonText}>SAVE PASSWORD</Text>
             </TouchableOpacity>
