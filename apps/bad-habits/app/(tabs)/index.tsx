@@ -1,31 +1,33 @@
+import { IconSymbol } from '@/components/ui/IconSymbol';
 import { getThemeColors, HABIT_CATEGORIES } from '@/constants/Data';
 import { useAppStore } from '@/store/useAppStore';
 import { Habit, HabitCheckIn } from '@/types';
-import { formatDate } from '@/utils/helpers';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Alert,
+  Dimensions,
   RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Path, Svg } from 'react-native-svg';
+
+const { width, height } = Dimensions.get('window');
+const HEADER_HEIGHT = height / 2;
 
 export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
-  const [encouragingMessage, setEncouragingMessage] = useState('');
   
   const {
     user,
-    habits,
-    checkIns,
     getActiveHabits,
     getTodayCheckIns,
     addCheckIn,
-    updateStreak,
     getEncouragingMessage,
     currentTheme,
   } = useAppStore();
@@ -45,218 +47,203 @@ export default function HomeScreen() {
     scrollView: {
       flex: 1,
     },
-    heroSection: {
-      padding: 20,
-      paddingBottom: 10,
-      backgroundColor: COLORS.card,
-      borderBottomWidth: 1,
-      borderBottomColor: COLORS.border,
+    headerBackground: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      height: HEADER_HEIGHT*2,
     },
-    greetingContainer: {
-      alignItems: 'flex-start',
-    },
-    greetingTime: {
-      fontSize: 28,
-      fontWeight: 'bold',
-      color: COLORS.text,
-      marginBottom: 4,
-    },
-    greetingName: {
-      fontSize: 28,
-      fontWeight: 'bold',
-      color: COLORS.primary,
-      marginBottom: 8,
-    },
-    greetingDate: {
-      fontSize: 16,
-      color: COLORS.textSecondary,
-    },
-    quoteContainer: {
-      margin: 20,
-      marginTop: 16,
-      padding: 20,
-      backgroundColor: COLORS.card,
-      borderRadius: 16,
-      borderWidth: 1,
-      borderColor: COLORS.border,
-      shadowColor: COLORS.text,
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
-      shadowOpacity: 0.05,
-      shadowRadius: 8,
-      elevation: 2,
-    },
-    quoteText: {
-      fontSize: 16,
-      color: COLORS.text,
-      textAlign: 'center',
-      fontWeight: '500',
-      lineHeight: 24,
-      fontStyle: 'italic',
-    },
-    statsContainer: {
-      flexDirection: 'row',
+    headerContainer: {
       paddingHorizontal: 20,
-      marginBottom: 24,
-      gap: 12,
+      paddingTop: 40,
     },
-    statCard: {
-      flex: 1,
-      backgroundColor: COLORS.card,
-      padding: 16,
-      borderRadius: 12,
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
       alignItems: 'center',
-      borderWidth: 1,
-      borderColor: COLORS.border,
-      shadowColor: COLORS.text,
-      shadowOffset: {
-        width: 0,
-        height: 1,
-      },
-      shadowOpacity: 0.05,
-      shadowRadius: 4,
-      elevation: 1,
+      marginBottom:20
     },
-    statNumber: {
-      fontSize: 24,
+    headerLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    avatar: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: COLORS.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 12,
+    },
+    avatarText: {
+      color: COLORS.card,
+      fontSize: 18,
       fontWeight: 'bold',
-      color: COLORS.primary,
-      marginBottom: 4,
     },
-    statLabel: {
-      fontSize: 12,
-      color: COLORS.textSecondary,
-      textAlign: 'center',
-      fontWeight: '500',
+    headerName: {
+      color: COLORS.background,
+      fontSize: 16,
+      fontWeight: '800',
+    },
+    menuIcon: {
+      fontSize: 24,
+      color: COLORS.text,
+    },
+    titleSection: {
+      paddingHorizontal: 0,
+      marginTop: 20,
+    },
+    title: {
+      fontSize: 32,
+      fontWeight: 'bold',
+      color: COLORS.background,
+      lineHeight: 40,
+    },
+    searchSection: {
+      marginTop: 24,
+    },
+    searchBar: {
+      backgroundColor: COLORS.card,
+      borderRadius: 25,
+      paddingHorizontal: 16,
+      flexDirection: 'row',
+      alignItems: 'center',
+      height: 50,
+    },
+    searchInput: {
+      flex: 1,
+      marginLeft: 12,
+      fontSize: 16,
+      color: COLORS.text,
+    },
+    filterButton: {
+      fontSize: 20,
     },
     section: {
       paddingHorizontal: 20,
+      marginTop: 0,
+      paddingTop: 30,
+      borderTopLeftRadius: 30,
+      borderTopRightRadius: 30,
     },
     sectionTitle: {
-      fontSize: 20,
+      fontSize: 22,
       fontWeight: 'bold',
-      color: COLORS.text,
+      color: COLORS.background,
       marginBottom: 16,
     },
     habitCard: {
       backgroundColor: COLORS.card,
-      borderRadius: 16,
-      padding: 20,
-      marginBottom: 16,
-      borderWidth: 1,
-      borderColor: COLORS.border,
-      shadowColor: COLORS.text,
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
-      shadowOpacity: 0.05,
-      shadowRadius: 8,
-      elevation: 2,
+      borderRadius: 20,
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.15,
+      shadowRadius: 12,
+      elevation: 8,
+      width: width * 0.66,
+      marginRight: 16,
+      marginBottom: 8,
     },
-    habitHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 16,
-    },
-    habitInfo: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      flex: 1,
-    },
-    habitIconContainer: {
-      width: 48,
-      height: 48,
-      borderRadius: 24,
-      backgroundColor: COLORS.primary + '15',
+    habitCardImage: {
+      height: 120,
       justifyContent: 'center',
       alignItems: 'center',
-      marginRight: 16,
+      borderRadius: 20,
     },
     habitIcon: {
-      fontSize: 20,
+      fontSize: 40,
     },
-    habitText: {
+    habitCardContent: {
+      padding: 20,
+    },
+    habitCardHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+    },
+    habitInfo: {
       flex: 1,
+      marginRight: 12,
     },
     habitName: {
-      fontSize: 18,
-      fontWeight: '600',
+      fontSize: 20,
+      fontWeight: 'bold',
       color: COLORS.text,
       marginBottom: 4,
     },
     habitCategory: {
       fontSize: 14,
       color: COLORS.textSecondary,
-      fontWeight: '500',
     },
     streakContainer: {
       alignItems: 'center',
-      backgroundColor: COLORS.primary + '10',
       paddingHorizontal: 12,
-      paddingVertical: 8,
+      paddingVertical: 6,
       borderRadius: 12,
+      backgroundColor: COLORS.primary + '20',
     },
     streakText: {
-      fontSize: 20,
+      fontSize: 22,
       fontWeight: 'bold',
-      color: COLORS.primary,
+      color: COLORS.text,
     },
     streakLabel: {
       fontSize: 12,
       color: COLORS.textSecondary,
       fontWeight: '500',
+      marginTop: 2,
     },
     habitActions: {
       flexDirection: 'row',
       gap: 12,
+      marginTop: 20,
+      paddingHorizontal: 20,
+      paddingBottom: 20,
     },
     actionButton: {
       flex: 1,
-      padding: 14,
-      borderRadius: 12,
+      padding: 16,
+      borderRadius: 20,
       alignItems: 'center',
-      borderWidth: 1,
     },
     completeButton: {
-      backgroundColor: COLORS.success + '15',
-      borderColor: COLORS.success,
+      backgroundColor: COLORS.primary,
     },
     completeButtonText: {
-      color: COLORS.success,
-      fontWeight: '600',
+      color: '#FFFFFF',
+      fontWeight: 'bold',
       fontSize: 16,
     },
     missButton: {
-      backgroundColor: COLORS.error + '15',
-      borderColor: COLORS.error,
+      backgroundColor: COLORS.card,
+      borderWidth: 1,
+      borderColor: COLORS.border,
     },
     missButtonText: {
-      color: COLORS.error,
-      fontWeight: '600',
+      color: COLORS.text,
+      fontWeight: 'bold',
       fontSize: 16,
     },
     completedStatus: {
       flex: 1,
-      padding: 14,
-      backgroundColor: COLORS.success + '15',
+      padding: 16,
+      backgroundColor: COLORS.primary + '20',
       borderRadius: 12,
       alignItems: 'center',
       borderWidth: 1,
-      borderColor: COLORS.success,
+      borderColor: COLORS.primary,
     },
     completedText: {
-      color: COLORS.success,
-      fontWeight: '600',
+      color: COLORS.primary,
+      fontWeight: 'bold',
       fontSize: 16,
     },
     missedStatus: {
       flex: 1,
-      padding: 14,
-      backgroundColor: COLORS.error + '15',
+      padding: 16,
+      backgroundColor: COLORS.error + '20',
       borderRadius: 12,
       alignItems: 'center',
       borderWidth: 1,
@@ -264,17 +251,20 @@ export default function HomeScreen() {
     },
     missedText: {
       color: COLORS.error,
-      fontWeight: '600',
+      fontWeight: 'bold',
       fontSize: 16,
     },
     emptyState: {
       alignItems: 'center',
-      padding: 40,
+      paddingVertical: 60,
+      paddingHorizontal: 20,
+      backgroundColor: COLORS.card,
+      borderRadius: 20,
     },
     emptyStateText: {
       fontSize: 18,
       fontWeight: '600',
-      color: COLORS.textSecondary,
+      color: COLORS.text,
       marginBottom: 8,
     },
     emptyStateSubtext: {
@@ -283,12 +273,6 @@ export default function HomeScreen() {
       textAlign: 'center',
     },
   });
-
-  useEffect(() => {
-    // Set encouraging message on mount
-    const message = getEncouragingMessage('daily');
-    setEncouragingMessage(message);
-  }, [getEncouragingMessage]);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -344,19 +328,20 @@ export default function HomeScreen() {
     
     return (
       <View key={habit.id} style={styles.habitCard}>
-        <View style={styles.habitHeader}>
-          <View style={styles.habitInfo}>
-            <View style={styles.habitIconContainer}>
-              <Text style={styles.habitIcon}>{category.icon}</Text>
-            </View>
-            <View style={styles.habitText}>
+        <View style={[styles.habitCardImage, { backgroundColor: category.color || `${COLORS.primary}30` }]}>
+          <Text style={styles.habitIcon}>{category.icon}</Text>
+        </View>
+
+        <View style={styles.habitCardContent}>
+          <View style={styles.habitCardHeader}>
+            <View style={styles.habitInfo}>
               <Text style={styles.habitName}>{habit.name}</Text>
               <Text style={styles.habitCategory}>{category.name}</Text>
             </View>
-          </View>
-          <View style={styles.streakContainer}>
-            <Text style={styles.streakText}>{habit.streak}</Text>
-            <Text style={styles.streakLabel}>days</Text>
+            <View style={styles.streakContainer}>
+              <Text style={styles.streakText}>{habit.streak}</Text>
+              <Text style={styles.streakLabel}>days</Text>
+            </View>
           </View>
         </View>
         
@@ -380,92 +365,101 @@ export default function HomeScreen() {
           
           {status === 'completed' && (
             <View style={styles.completedStatus}>
-              <Text style={styles.completedText}>Completed today</Text>
+              <Text style={styles.completedText}>Completed!</Text>
             </View>
           )}
           
           {status === 'missed' && (
             <View style={styles.missedStatus}>
-              <Text style={styles.missedText}>Missed today</Text>
+              <Text style={styles.missedText}>Missed</Text>
             </View>
           )}
         </View>
       </View>
     );
-  };
-
-  const renderStats = () => {
-    const totalHabits = activeHabits.length;
-    const completedToday = todayCheckIns.filter((checkIn: HabitCheckIn) => checkIn.completed).length;
-    const completionRate = totalHabits > 0 ? Math.round((completedToday / totalHabits) * 100) : 0;
-
-    return (
-      <View style={styles.statsContainer}>
-        <View style={styles.statCard}>
-          <Text style={styles.statNumber}>{totalHabits}</Text>
-          <Text style={styles.statLabel}>Active Habits</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Text style={styles.statNumber}>{completedToday}</Text>
-          <Text style={styles.statLabel}>Completed Today</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Text style={styles.statNumber}>{completionRate}%</Text>
-          <Text style={styles.statLabel}>Completion Rate</Text>
-        </View>
-      </View>
-    );
-  };
-
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView
-        style={styles.scrollView}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
-        {/* Hero Section with Greeting */}
-        <View style={styles.heroSection}>
-          <View style={styles.greetingContainer}>
-            <Text style={styles.greetingTime}>{getGreeting()}</Text>
-            <Text style={styles.greetingName}>{user?.username}</Text>
-            <Text style={styles.greetingDate}>{formatDate(new Date())}</Text>
-          </View>
-        </View>
+    <View style={styles.container}>
+      <View style={styles.headerBackground}>
+        <Svg height="100%" width="100%" style={{ position: 'absolute', bottom: 0, marginBottom:20 }}>
+          <Path
+            d={`M0,0
+                L${width},0 
+                L${width},${HEADER_HEIGHT + 100} 
+                Q${width/2},${HEADER_HEIGHT+100} 
+                0,${HEADER_HEIGHT} 
+                L0,0 
+                Z`}
+            fill={COLORS.primary}
+          />
+        </Svg>
+      </View>
 
-        {/* Encouraging Quote */}
-        {encouragingMessage && (
-          <View style={styles.quoteContainer}>
-            <Text style={styles.quoteText}>{encouragingMessage}</Text>
-          </View>
-        )}
 
-        {/* Stats Section */}
-        {renderStats()}
-
-        {/* Habits Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Today&apos;s Habits</Text>
-          {activeHabits.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyStateText}>No active habits yet</Text>
-              <Text style={styles.emptyStateSubtext}>
-                Add some habits to start tracking your progress
-              </Text>
+      <SafeAreaView style={{ flex: 1 }}>
+        <ScrollView
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />
+          }
+        >
+          {/* Header Content */}
+          <View style={styles.headerContainer}>
+            <View style={styles.header}>
+              <View style={styles.headerLeft}>
+                <View style={[styles.avatar, { backgroundColor: COLORS.card }]}>
+                  <Text style={[styles.avatarText, { color: COLORS.primary }]}>{user?.username?.[0].toUpperCase()}</Text>
+                </View>
+                <Text style={styles.headerName}>{user?.username}</Text>
+              </View>
+              <TouchableOpacity>
+                <IconSymbol name="gearshape.fill" color={COLORS.background} size={24} />
+              </TouchableOpacity>
             </View>
-          ) : (
-            activeHabits.map(renderHabitCard)
-          )}
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+
+            {/* Title */}
+            <View style={styles.titleSection}>
+              <Text style={styles.title}>Build Better Habits, One Day at a Time.</Text>
+            </View>
+
+            {/* Search Bar */}
+            <View style={styles.searchSection}>
+              <View style={[styles.searchBar, { backgroundColor: COLORS.card, borderWidth: 0 }]}>
+                <IconSymbol name="magnifyingglass" color={COLORS.textSecondary} size={20} />
+                <TextInput
+                  placeholder="Search habits..."
+                  placeholderTextColor={COLORS.textSecondary}
+                  style={styles.searchInput}
+                />
+              </View>
+            </View>
+          </View>
+          
+          {/* Habits Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Today&apos;s Habits</Text>
+            {activeHabits.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyStateText}>You have no active habits.</Text>
+                <Text style={styles.emptyStateSubtext}>
+                  Use the plus button to add a habit.
+                </Text>
+              </View>
+            ) : (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={{ marginHorizontal: -20 }}
+                contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 20 }}
+              >
+                {activeHabits.map(renderHabitCard)}
+              </ScrollView>
+            )}
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </View>
   );
 }

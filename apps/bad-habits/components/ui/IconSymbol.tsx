@@ -23,6 +23,7 @@ const MAPPING = {
   'chart.bar.fill': 'bar-chart',
   'target': 'track-changes',
   'person.fill': 'person',
+  'magnifyingglass': 'search',
 } as IconMapping;
 
 /**

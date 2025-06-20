@@ -46,23 +46,12 @@ export interface Habit {
   };
 }
 
-export type HabitCategory = 
-  | 'health'
-  | 'productivity'
-  | 'relationships'
-  | 'learning'
-  | 'finance'
-  | 'mindfulness'
-  | 'exercise'
-  | 'diet'
-  | 'sleep'
-  | 'social'
-  | 'other';
+export type HabitCategory = 'exercise' | 'diet' | 'mindfulness' | 'productivity' | 'health' | 'personal' | 'finance' | 'creative' | 'learning' | 'sleep' | 'relationships' | 'social' | 'other';
 
 export interface HabitCheckIn {
   id: string;
   habitId: string;
-  date: Date;
+  date?: Date;
   notes?: string;
   mood?: 'great' | 'good' | 'okay' | 'bad' | 'terrible';
   completed: boolean;
@@ -104,17 +93,13 @@ export interface PredefinedHabit {
   suggestedFrequency: 'daily' | 'weekly' | 'monthly';
 }
 
-export interface EncouragingMessage {
-  id: string;
-  type: 'achievement' | 'setback' | 'daily' | 'milestone';
+export type EncouragingMessage = {
   message: string;
-  emoji: string;
   conditions?: {
     minStreak?: number;
     maxStreak?: number;
-    habitType?: 'good' | 'bad';
   };
-}
+};
 
 export interface StorageKeys {
   USER_DATA: '@bad_habits_user';

@@ -3,14 +3,14 @@ import { useAppStore } from '@/store/useAppStore';
 import { Habit, HabitCategory } from '@/types';
 import React, { useState } from 'react';
 import {
-    Alert,
-    Modal,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -32,8 +32,6 @@ export default function HabitsScreen() {
   
   const {
     habits,
-    getHabitsByCategory,
-    getHabitsByType,
     toggleHabitActive,
     deleteHabit,
     currentTheme,
@@ -618,15 +616,14 @@ export default function HabitsScreen() {
       gap: 8,
     },
     typeChip: {
-      flex: 1,
-      paddingVertical: 6,
       paddingHorizontal: 12,
-      borderRadius: 8,
+      paddingVertical: 6,
+      borderRadius: 20,
       backgroundColor: COLORS.card,
       borderWidth: 1,
       borderColor: COLORS.border,
-      alignItems: 'center',
-      height: 36,
+      gap: 4,
+      height: 32,
     },
     typeChipActive: {
       backgroundColor: COLORS.primary + '20',

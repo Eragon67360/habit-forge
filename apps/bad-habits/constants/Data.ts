@@ -175,119 +175,27 @@ export const PREDEFINED_HABITS: PredefinedHabit[] = [
 ];
 
 // Encouraging messages for different scenarios
-export const ENCOURAGING_MESSAGES: EncouragingMessage[] = [
-  // Achievement messages
-  {
-    id: 'achievement_1',
-    type: 'achievement',
-    message: 'Amazing job! You\'re on a {streak}-day streak! Keep shining!',
-    emoji: '🌟',
-    conditions: { minStreak: 1 },
-  },
-  {
-    id: 'achievement_2',
-    type: 'achievement',
-    message: 'Incredible! {streak} days strong! You\'re unstoppable!',
-    emoji: '💪',
-    conditions: { minStreak: 7 },
-  },
-  {
-    id: 'achievement_3',
-    type: 'achievement',
-    message: 'Wow! {streak} days! You\'re building something amazing!',
-    emoji: '🏆',
-    conditions: { minStreak: 30 },
-  },
-  {
-    id: 'achievement_4',
-    type: 'achievement',
-    message: 'Legendary! {streak} days! You\'re an inspiration!',
-    emoji: '👑',
-    conditions: { minStreak: 100 },
-  },
-
-  // Setback messages
-  {
-    id: 'setback_1',
-    type: 'setback',
-    message: 'Remember, every day is a new beginning. You\'ve got this!',
-    emoji: '💪',
-  },
-  {
-    id: 'setback_2',
-    type: 'setback',
-    message: 'Setbacks are just stepping stones to success. Keep going!',
-    emoji: '🌈',
-  },
-  {
-    id: 'setback_3',
-    type: 'setback',
-    message: 'Don\'t let one bad day define you. Tomorrow is full of possibilities!',
-    emoji: '🌅',
-  },
-  {
-    id: 'setback_4',
-    type: 'setback',
-    message: 'You\'re stronger than any setback. Time to bounce back!',
-    emoji: '🚀',
-  },
-
-  // Daily check-in messages
-  {
-    id: 'daily_1',
-    type: 'daily',
-    message: 'Welcome back! Ready to make today count?',
-    emoji: '😊',
-  },
-  {
-    id: 'daily_2',
-    type: 'daily',
-    message: 'Great to see you! Let\'s make this day amazing!',
-    emoji: '✨',
-  },
-  {
-    id: 'daily_3',
-    type: 'daily',
-    message: 'You\'re here! That\'s the first step to success!',
-    emoji: '🎯',
-  },
-  {
-    id: 'daily_4',
-    type: 'daily',
-    message: 'Another day, another opportunity to grow!',
-    emoji: '🌱',
-  },
-
-  // Milestone messages
-  {
-    id: 'milestone_1',
-    type: 'milestone',
-    message: '🎉 10 days! You\'re building momentum!',
-    emoji: '🎉',
-    conditions: { minStreak: 10, maxStreak: 10 },
-  },
-  {
-    id: 'milestone_2',
-    type: 'milestone',
-    message: '🎊 30 days! You\'re creating lasting change!',
-    emoji: '🎊',
-    conditions: { minStreak: 30, maxStreak: 30 },
-  },
-  {
-    id: 'milestone_3',
-    type: 'milestone',
-    message: '🏆 100 days! You\'re absolutely incredible!',
-    emoji: '🏆',
-    conditions: { minStreak: 100, maxStreak: 100 },
-  },
-  {
-    id: 'milestone_4',
-    type: 'milestone',
-    message: '👑 365 days! You\'re a true champion!',
-    emoji: '👑',
-    conditions: { minStreak: 365, maxStreak: 365 },
-  },
-];
+export const ENCOURAGING_MESSAGES: Record<'achievement' | 'setback' | 'daily' | 'milestone', EncouragingMessage[]> = {
+  daily: [
+    { message: 'A journey of a thousand miles begins with a single step.' },
+    { message: 'Success is the sum of small efforts, repeated day in and day out.' },
+    { message: 'The secret of your future is hidden in your daily routine.' },
+  ],
+  achievement: [
+    { message: 'Great job! You\'ve hit a {streak}-day streak!' },
+    { message: 'Wow, {streak} days in a row! You\'re on fire!' },
+    { message: 'Keep up the amazing work! That\'s a {streak}-day streak!' },
+  ],
+  setback: [
+    { message: 'Don\'t worry, a small setback is just a setup for a major comeback.' },
+    { message: 'It\'s okay to stumble. What matters is getting back up.' },
+    { message: 'Progress isn\'t always linear. Keep pushing forward!' },
+  ],
+  milestone: [
+    { message: 'Congratulations on reaching a {streak}-day milestone! You are unstoppable.' },
+    { message: 'You\'ve hit a major milestone of {streak} days! Celebrate your progress.' },
+  ],
+};
 
 // Habit categories with icons and colors
 export const HABIT_CATEGORIES = {
@@ -301,6 +209,8 @@ export const HABIT_CATEGORIES = {
   diet: { name: 'Diet', icon: '🥗', color: '#84CC16' },
   sleep: { name: 'Sleep', icon: '😴', color: '#6366F1' },
   social: { name: 'Social', icon: '👥', color: '#06B6D4' },
+  personal: { name: 'Personal', icon: '👤', color: '#7E22CE' },
+  creative: { name: 'Creative', icon: '🎨', color: '#DB2777' },
   other: { name: 'Other', icon: '📝', color: '#6B7280' },
 } as const;
 
@@ -310,6 +220,7 @@ export const APP_CONFIG = {
   version: '1.0.0',
   developer: 'Thomas Moser',
   contact: 'thomas-moser@orange.fr',
+  storageKey: 'bad-habits-storage',
   maxHabits: 20,
   maxNotesPerHabit: 50,
   passwordMinLength: 6,

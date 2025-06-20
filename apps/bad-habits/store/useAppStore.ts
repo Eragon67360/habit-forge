@@ -1,18 +1,32 @@
 import { APP_CONFIG, ENCOURAGING_MESSAGES } from '@/constants/Data';
 import {
-    AppState,
-    Habit,
-    HabitCategory,
-    HabitCheckIn,
-    NotificationSettings,
-    StreakMilestone,
-    User,
-    UserPreferences
+  AppState,
+  Habit,
+  HabitCategory,
+  HabitCheckIn,
+  NotificationSettings,
+  StreakMilestone,
+  User,
+  UserPreferences
 } from '@/types';
 import { generateId } from '@/utils/helpers';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+
+// Custom replacer/reviver for JSON serialization to handle Date objects
+const jsonStorage = createJSONStorage(() => AsyncStorage, {
+  reviver: (key, value) => {
+    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value)) {
+      return new Date(value);
+    }
+    return value;
+  },
+});
+
+function isSimpleMessageArray(arr: any[]): arr is string[] {
+  return typeof arr[0] === 'string';
+}
 
 interface AppStore extends AppState {
   // Authentication actions
@@ -169,14 +183,14 @@ export const useAppStore = create<AppStore>()(
         const todayCheckIn = state.checkIns.find(
           (checkIn) =>
             checkIn.habitId === habitId &&
-            checkIn.date.toDateString() === todayStr &&
+            checkIn.date?.toDateString() === todayStr &&
             checkIn.completed
         );
 
         const yesterdayCheckIn = state.checkIns.find(
           (checkIn) =>
             checkIn.habitId === habitId &&
-            checkIn.date.toDateString() === yesterdayStr &&
+            checkIn.date?.toDateString() === yesterdayStr &&
             checkIn.completed
         );
 
@@ -252,20 +266,20 @@ export const useAppStore = create<AppStore>()(
 
       // UI actions
       setLoading: (isLoading) => set({ isLoading }),
-      setTheme: (currentTheme) => set({ currentTheme }),
+      setTheme: (theme) => set((state) => ({
+        currentTheme: theme,
+        user: state.user
+          ? {
+              ...state.user,
+              preferences: { ...state.user.preferences, preferredTheme: theme },
+            }
+          : null,
+      })),
 
       // Utility actions
-      resetApp: () => set({
-        ...initialState,
-        user: null,
-        habits: [],
-        checkIns: [],
-        milestones: [],
-      }),
+      resetApp: () => set(initialState),
 
       resetAppData: () => set({
-        ...initialState,
-        user: null,
         habits: [],
         checkIns: [],
         milestones: [],
@@ -282,50 +296,32 @@ export const useAppStore = create<AppStore>()(
       getHabitsByType: (type) =>
         get().habits.filter((habit) => habit.type === type),
       
-      getActiveHabits: () =>
-        get().habits.filter((habit) => habit.isActive),
+      getActiveHabits: () => get().habits.filter((habit) => habit.isActive),
       
       getTodayCheckIns: () => {
-        const today = new Date().toDateString();
+        const todayStr = new Date().toDateString();
         return get().checkIns.filter(
-          (checkIn) => checkIn.date.toDateString() === today
+          (checkIn) => checkIn.date?.toDateString() === todayStr
         );
       },
 
       getEncouragingMessage: (type, streak) => {
-        const messages = ENCOURAGING_MESSAGES.filter(
-          (msg) => msg.type === type
-        );
+        const messages = ENCOURAGING_MESSAGES[type];
+        if (!messages || messages.length === 0) return '';
+        
+        const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+        let messageText = randomMessage.message;
 
-        if (messages.length === 0) return '';
-
-        // Filter by conditions if streak is provided
-        const filteredMessages = streak
-          ? messages.filter((msg) => {
-              if (!msg.conditions) return true;
-              const { minStreak, maxStreak } = msg.conditions;
-              if (minStreak && streak < minStreak) return false;
-              if (maxStreak && streak > maxStreak) return false;
-              return true;
-            })
-          : messages.filter((msg) => !msg.conditions);
-
-        if (filteredMessages.length === 0) return messages[0]?.message || '';
-
-        const randomMessage = filteredMessages[Math.floor(Math.random() * filteredMessages.length)];
-        return randomMessage.message.replace('{streak}', streak?.toString() || '');
+        if (streak) {
+          messageText = messageText.replace('{streak}', streak.toString());
+        }
+        
+        return messageText;
       },
     }),
     {
-      name: 'bad-habits-storage',
-      storage: createJSONStorage(() => AsyncStorage),
-      partialize: (state) => ({
-        user: state.user,
-        habits: state.habits,
-        checkIns: state.checkIns,
-        milestones: state.milestones,
-        currentTheme: state.currentTheme,
-      }),
+      name: APP_CONFIG.storageKey,
+      storage: jsonStorage,
     }
   )
 ); 
