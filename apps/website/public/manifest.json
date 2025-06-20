@@ -1,0 +1,18 @@
+{
+  "name": "HabitForge",
+  "short_name": "HabitForge",
+  "description": "Transform your life by tracking and breaking bad habits with our intuitive app.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#A076F9",
+  "theme_color": "#A076F9",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
