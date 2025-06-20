@@ -7,7 +7,7 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\" --ignore-path .gitignore"
   },
   "devDependencies": {
-    "prettier": "^3.1.1",
+    "prettier": "^3.5.3",
     "turbo": "^2.5.4"
   },
   "engines": {
