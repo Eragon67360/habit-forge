@@ -30,6 +30,10 @@ export default function HomeScreen() {
     addCheckIn,
     getEncouragingMessage,
     currentTheme,
+    dailyQuote,
+    fetchDailyQuote,
+    forceRefreshQuote,
+    isQuoteLoading,
   } = useAppStore();
 
   // Get theme-aware colors
@@ -37,6 +41,13 @@ export default function HomeScreen() {
 
   const activeHabits = getActiveHabits();
   const todayCheckIns = getTodayCheckIns();
+
+  // Fetch quote only if we don't have one - this prevents infinite loops
+  React.useEffect(() => {
+    if (!dailyQuote) {
+      fetchDailyQuote();
+    }
+  }, []); // Empty dependency array - runs only once
 
   // Create styles with current theme colors
   const styles = StyleSheet.create({
@@ -125,8 +136,8 @@ export default function HomeScreen() {
       paddingHorizontal: 20,
       marginTop: 0,
       paddingTop: 30,
-      borderTopLeftRadius: 30,
-      borderTopRightRadius: 30,
+      borderRadius: 20,
+
     },
     sectionTitle: {
       fontSize: 22,
@@ -260,6 +271,11 @@ export default function HomeScreen() {
       paddingHorizontal: 20,
       backgroundColor: COLORS.card,
       borderRadius: 20,
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.15,
+      shadowRadius: 12,
+      elevation: 8,
     },
     emptyStateText: {
       fontSize: 18,
@@ -272,14 +288,69 @@ export default function HomeScreen() {
       color: COLORS.textSecondary,
       textAlign: 'center',
     },
+    quoteSection: {
+      marginTop: 20,
+      paddingHorizontal: 20,
+      paddingBottom: 40,
+    },
+    quoteCard: {
+      backgroundColor: COLORS.card,
+      borderRadius: 20,
+      padding: 24,
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.15,
+      shadowRadius: 12,
+      elevation: 8,
+    },
+    quoteIcon: {
+      fontSize: 24,
+      color: COLORS.primary,
+      marginBottom: 16,
+    },
+    quoteText: {
+      fontSize: 18,
+      fontStyle: 'italic',
+      color: COLORS.text,
+      lineHeight: 26,
+      marginBottom: 16,
+      textAlign: 'center',
+    },
+    quoteAuthor: {
+      fontSize: 14,
+      color: COLORS.textSecondary,
+      textAlign: 'center',
+      fontWeight: '600',
+    },
   });
 
   const onRefresh = async () => {
     setRefreshing(true);
-    // Simulate refresh delay
-    setTimeout(() => {
+    
+    try {
+      // Add a small delay to prevent rapid requests
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Force refresh the daily quote from AI (always get new quote regardless of day)
+      await forceRefreshQuote();
+      
+      // The store will automatically reload data from storage
+      // since Zustand persist middleware handles this
+      
+    } catch (error) {
+      console.error('Error refreshing content:', error);
+      
+      // Show user-friendly error message for rate limits
+      if (error instanceof Error && error.message.includes('Rate limit')) {
+        Alert.alert(
+          'Rate Limit Reached',
+          'You\'ve hit the API rate limit. Please wait 1-2 minutes before trying again, or consider upgrading your OpenAI plan for higher limits.',
+          [{ text: 'OK' }]
+        );
+      }
+    } finally {
       setRefreshing(false);
-    }, 1000);
+    }
   };
 
   const handleCheckIn = (habit: Habit, completed: boolean) => {
@@ -396,7 +467,6 @@ export default function HomeScreen() {
         </Svg>
       </View>
 
-
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView
           style={styles.scrollView}
@@ -414,9 +484,6 @@ export default function HomeScreen() {
                 </View>
                 <Text style={styles.headerName}>{user?.username}</Text>
               </View>
-              <TouchableOpacity>
-                <IconSymbol name="gearshape.fill" color={COLORS.background} size={24} />
-              </TouchableOpacity>
             </View>
 
             {/* Title */}
@@ -457,6 +524,32 @@ export default function HomeScreen() {
                 {activeHabits.map(renderHabitCard)}
               </ScrollView>
             )}
+          </View>
+          
+          {/* Quote of the Day Section */}
+          <View style={styles.quoteSection}>
+            <View style={styles.quoteCard}>
+              <Text style={styles.quoteIcon}>💭</Text>
+              {isQuoteLoading ? (
+                <>
+                  <Text style={styles.quoteText}>
+                    Loading new inspirational quote...
+                  </Text>
+                  <Text style={styles.quoteAuthor}>
+                    — AI is thinking...
+                  </Text>
+                </>
+              ) : (
+                <>
+                  <Text style={styles.quoteText}>
+                    {dailyQuote ? `${dailyQuote.text}` : 'Loading inspirational quote...'}
+                  </Text>
+                  <Text style={styles.quoteAuthor}>
+                    {dailyQuote ? `— ${dailyQuote.author}` : '— Loading...'}
+                  </Text>
+                </>
+              )}
+            </View>
           </View>
         </ScrollView>
       </SafeAreaView>

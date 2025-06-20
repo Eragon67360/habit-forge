@@ -1,10 +1,12 @@
 import { APP_CONFIG, ENCOURAGING_MESSAGES } from '@/constants/Data';
+import QuoteService from '@/services/QuoteService';
 import {
   AppState,
   Habit,
   HabitCategory,
   HabitCheckIn,
   NotificationSettings,
+  Quote,
   StreakMilestone,
   User,
   UserPreferences
@@ -58,6 +60,12 @@ interface AppStore extends AppState {
   setLoading: (isLoading: boolean) => void;
   setTheme: (theme: 'light' | 'dark') => void;
   
+  // Quote actions
+  fetchDailyQuote: () => Promise<void>;
+  setDailyQuote: (quote: Quote | null) => void;
+  refreshQuote: () => Promise<void>;
+  forceRefreshQuote: () => Promise<void>;
+  
   // Utility actions
   resetApp: () => void;
   resetAppData: () => void;
@@ -72,8 +80,10 @@ interface AppStore extends AppState {
 
 const initialState: Omit<AppState, 'user' | 'habits' | 'checkIns' | 'milestones'> = {
   isLoading: false,
+  isQuoteLoading: false,
   isAuthenticated: false,
   currentTheme: 'light',
+  dailyQuote: null,
 };
 
 export const useAppStore = create<AppStore>()(
@@ -276,13 +286,76 @@ export const useAppStore = create<AppStore>()(
           : null,
       })),
 
+      // Quote actions
+      fetchDailyQuote: async () => {
+        try {
+          set({ isQuoteLoading: true });
+          const quoteService = QuoteService.getInstance();
+          const quote = await quoteService.getDailyQuote();
+          set({ dailyQuote: quote });
+        } catch (error) {
+          console.error('Error fetching daily quote:', error);
+          // Keep existing quote if fetch fails
+        } finally {
+          set({ isQuoteLoading: false });
+        }
+      },
+
+      setDailyQuote: (quote) => set({ dailyQuote: quote }),
+
+      refreshQuote: async () => {
+        try {
+          set({ isQuoteLoading: true });
+          const quoteService = QuoteService.getInstance();
+          const quote = await quoteService.refreshQuote();
+          set({ dailyQuote: quote });
+        } catch (error) {
+          console.error('Error refreshing quote:', error);
+          // Keep existing quote if refresh fails
+        } finally {
+          set({ isQuoteLoading: false });
+        }
+      },
+
+      forceRefreshQuote: async () => {
+        try {
+          set({ isQuoteLoading: true });
+          const quoteService = QuoteService.getInstance();
+          // Force a new quote regardless of day
+          const quote = await quoteService.refreshQuote();
+          set({ dailyQuote: quote });
+        } catch (error) {
+          console.error('Error forcing quote refresh:', error);
+          // Keep existing quote if fetch fails
+        } finally {
+          set({ isQuoteLoading: false });
+        }
+      },
+
       // Utility actions
-      resetApp: () => set(initialState),
+      resetApp: () => {
+        // Ensure complete reset including authentication state
+        set({
+          user: null,
+          habits: [],
+          checkIns: [],
+          milestones: [],
+          dailyQuote: null,
+          isLoading: false,
+          isAuthenticated: false,
+          currentTheme: 'light',
+        });
+      },
 
       resetAppData: () => set({
+        user: null,
         habits: [],
         checkIns: [],
         milestones: [],
+        dailyQuote: null,
+        isLoading: false,
+        isAuthenticated: false,
+        currentTheme: 'light',
       }),
 
       getHabitById: (id) => get().habits.find((habit) => habit.id === id),

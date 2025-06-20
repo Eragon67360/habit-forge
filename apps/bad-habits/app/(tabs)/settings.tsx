@@ -4,15 +4,15 @@ import { NotificationSettings } from '@/types';
 import { hashPassword, validatePassword } from '@/utils/helpers';
 import React, { useState } from 'react';
 import {
-    Alert,
-    Modal,
-    ScrollView,
-    StyleSheet,
-    Switch,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -32,7 +32,7 @@ export default function SettingsScreen() {
     updateNotificationSettings,
     setTheme,
     currentTheme,
-    resetAppData,
+    resetApp,
     updateUser,
   } = useAppStore();
 
@@ -248,14 +248,14 @@ export default function SettingsScreen() {
   const handleResetAppData = () => {
     Alert.alert(
       'Reset App Data',
-      'This will permanently delete all your data including habits, streaks, and settings. This action cannot be undone.',
+      'This will permanently delete ALL your data including user account, habits, streaks, settings, and preferences. You will need to set up the app again from scratch. This action cannot be undone.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Reset All Data',
+          text: 'Reset Everything',
           style: 'destructive',
           onPress: () => {
-            resetAppData();
+            resetApp();
           },
         },
       ]
@@ -522,6 +522,13 @@ export default function SettingsScreen() {
               'Contact',
               'Get in touch for support',
               <Text style={styles.settingValue}>{APP_CONFIG.contact}</Text>
+            )}
+            {renderSettingItem(
+              'AI API Status',
+              process.env.EXPO_PUBLIC_OPENAI_API_KEY ? 'Configured' : 'Not configured',
+              <Text style={[styles.settingValue, { color: process.env.EXPO_PUBLIC_OPENAI_API_KEY ? COLORS.primary : COLORS.error }]}>
+                {process.env.EXPO_PUBLIC_OPENAI_API_KEY ? '✅' : '❌'}
+              </Text>
             )}
           </>
         ))}

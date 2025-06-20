@@ -71,8 +71,10 @@ export interface AppState {
   checkIns: HabitCheckIn[];
   milestones: StreakMilestone[];
   isLoading: boolean;
+  isQuoteLoading: boolean;
   isAuthenticated: boolean;
   currentTheme: 'light' | 'dark';
+  dailyQuote: Quote | null;
 }
 
 export interface NotificationData {
@@ -140,4 +142,12 @@ export type TabParamList = {
   Habits: undefined;
   Progress: undefined;
   Settings: undefined;
-}; 
+};
+
+export interface Quote {
+  id: string;
+  text: string;
+  author: string;
+  category?: string;
+  lastUpdated: Date;
+} 
