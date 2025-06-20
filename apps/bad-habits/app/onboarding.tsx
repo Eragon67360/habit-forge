@@ -102,22 +102,35 @@ export default function OnboardingScreen() {
         primaryColor: COLORS.primary,
       };
 
+      const userId = generateId();
+      
+      let passwordHash: string | undefined;
+      if (hasPassword) {
+        passwordHash = await hashPassword(password);
+      }
+
       const user: User = {
-        id: generateId(),
+        id: userId,
         username: username.trim(),
         hasPassword,
-        passwordHash: hasPassword ? await hashPassword(password) : undefined,
+        passwordHash,
         createdAt: new Date(),
         lastLoginAt: new Date(),
         preferences: defaultPreferences,
       };
 
       setUser(user);
-      setAuthenticated(true);
       
-      // Navigate to main app
-      router.replace('/(tabs)' as any);
-    } catch {
+      // Only auto-authenticate users without password protection
+      if (!hasPassword) {
+        setAuthenticated(true);
+        // Navigate to main app
+        router.replace('/(tabs)' as any);
+      } else {
+        // Let AuthWrapper handle routing to auth screen
+        router.replace('/auth');
+      }
+    } catch (error) {
       Alert.alert('Error', 'Failed to create user. Please try again.');
     }
   };

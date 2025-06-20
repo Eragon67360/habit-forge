@@ -69,15 +69,22 @@ export default function AuthScreen() {
       // Simple delay to show loading state
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      if (user?.passwordHash && await verifyPassword(password, user.passwordHash)) {
-        setAuthenticated(true);
-        router.replace('/(tabs)');
+      if (user?.passwordHash) {
+        const isValid = await verifyPassword(password, user.passwordHash);
+        
+        if (isValid) {
+          setAuthenticated(true);
+          router.replace('/(tabs)');
+        } else {
+          setPassword('');
+          shakeInput();
+          // Removed Alert - just shake animation and clear input
+        }
       } else {
         setPassword('');
         shakeInput();
-        // Removed Alert - just shake animation and clear input
       }
-    } catch {
+    } catch (error) {
       Alert.alert('Error', 'Authentication failed. Please try again.');
     } finally {
       setIsLoading(false);

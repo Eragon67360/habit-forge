@@ -595,7 +595,6 @@ export default function HabitsScreen() {
 
   const styles = StyleSheet.create({
     container: {
-      flex: 1,
       backgroundColor: COLORS.background,
     },
     header: {
@@ -717,6 +716,7 @@ export default function HabitsScreen() {
     },
     content: {
       paddingHorizontal: 20,
+      height: '100%',
     },
     habitCard: {
       backgroundColor: COLORS.card,
@@ -867,6 +867,7 @@ export default function HabitsScreen() {
       padding: 60,
       flex: 1,
       justifyContent: 'center',
+      height: '100%',
     },
     emptyStateText: {
       fontSize: 20,

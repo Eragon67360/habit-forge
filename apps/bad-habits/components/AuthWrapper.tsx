@@ -5,11 +5,16 @@ import React, { useEffect } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 export default function AuthWrapper({ children }: { children: React.ReactNode }) {
-  const { user, isAuthenticated, isLoading, currentTheme, setAuthenticated } = useAppStore();
+  const { user, isAuthenticated, isLoading, currentTheme, setAuthenticated, initializeStore } = useAppStore();
   const segments = useSegments();
 
   // Get theme-aware colors
   const COLORS = getThemeColors(currentTheme === 'dark');
+
+  // Initialize store on mount - ensure users with passwords start unauthenticated
+  useEffect(() => {
+    initializeStore();
+  }, [initializeStore]);
 
   useEffect(() => {
     if (isLoading) return;

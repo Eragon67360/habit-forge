@@ -379,6 +379,7 @@ export default function SettingsScreen() {
         haptics.formSubmit();
         // Update password
         const hashedPassword = await hashPassword(newPassword);
+        
         updateUser({
           hasPassword: true,
           passwordHash: hashedPassword,
@@ -389,7 +390,7 @@ export default function SettingsScreen() {
         setNewPassword('');
         setConfirmPassword('');
         setPasswordErrors({});
-      } catch {
+      } catch (error) {
         haptics.formError();
         Alert.alert('Error', 'Failed to update password. Please try again.');
       }
