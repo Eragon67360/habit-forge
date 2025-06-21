@@ -9,9 +9,11 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      "bundleIdentifier": "com.eragon67.habitforge",
       "supportsTablet": true
     },
     "android": {
+      "package": "com.eragon67.habitforge",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/android/mipmap-xxxhdpi/icon.png",
         "backgroundColor": "#ffffff"
