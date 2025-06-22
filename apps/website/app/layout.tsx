@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import SchemaMarkup from "./components/SchemaMarkup";
 import PerformanceOptimizer from "./components/PerformanceOptimizer";
+import { ThemeProvider } from "./components/ThemeProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -101,10 +102,12 @@ export default function RootLayout({
         <SchemaMarkup />
       </head>
       <body className={inter.className}>
-        <PerformanceOptimizer />
-        {children}
-        <Analytics />
-        <SpeedInsights />
+        <ThemeProvider>
+          <PerformanceOptimizer />
+          {children}
+          <Analytics />
+          <SpeedInsights />
+        </ThemeProvider>
       </body>
     </html>
   );
