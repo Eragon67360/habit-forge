@@ -20,6 +20,7 @@ import {
   Heart,
   Play,
 } from "lucide-react";
+import ThemeSwitcher from "./components/ThemeSwitcher";
 
 export default function Home() {
   const fadeInUp = {
@@ -100,7 +101,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-x-hidden">
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 backdrop-blur-xl bg-white/80 dark:bg-slate-900/80 border-b border-slate-200/50 dark:border-slate-700/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -290,7 +291,7 @@ export default function Home() {
       </section>
 
       {/* Quote Section */}
-      <section className="py-20 bg-white dark:bg-slate-900 border-y border-slate-200 dark:border-slate-700">
+      <section className="py-20 bg-slate-50 dark:bg-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             className="grid grid-cols-1 md:grid-cols-3 gap-8"
@@ -527,17 +528,20 @@ export default function Home() {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="relative"
             >
-              <div className="bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 p-8 rounded-3xl border border-purple-200 dark:border-purple-800">
-                <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
+              <div className="bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 p-4 sm:p-6 lg:p-8 rounded-3xl border border-purple-200 dark:border-purple-800 max-w-full">
+                <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-6">
                   Why Choose HabitForge?
                 </h3>
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   {benefits.map((benefit, index) => (
-                    <div key={index} className="flex items-center gap-4">
-                      <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
-                        <CheckCircle className="w-5 h-5 text-white" />
+                    <div
+                      key={index}
+                      className="flex items-start gap-3 sm:gap-4"
+                    >
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <CheckCircle className="w-3 h-3 sm:w-5 sm:h-5 text-white" />
                       </div>
-                      <span className="text-slate-700 dark:text-slate-300 font-medium">
+                      <span className="text-sm sm:text-base text-slate-700 dark:text-slate-300 font-medium leading-relaxed">
                         {benefit}
                       </span>
                     </div>
@@ -552,7 +556,7 @@ export default function Home() {
       {/* Open Source Section */}
       <section
         id="opensource"
-        className="py-24 bg-gradient-to-br from-slate-900 to-purple-900 text-white"
+        className="py-24 bg-gradient-to-br from-slate-50 to-purple-50 dark:from-slate-900 dark:to-purple-900 text-slate-900 dark:text-white"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -562,17 +566,17 @@ export default function Home() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/20 text-purple-200 rounded-full text-sm font-medium mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-200 rounded-full text-sm font-medium mb-6">
               <Github className="w-4 h-4" />
               Open Source
             </div>
             <h2 className="text-4xl lg:text-5xl font-bold mb-6">
-              <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent">
                 Open Source
               </span>{" "}
               & Community Driven
             </h2>
-            <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed">
               We believe in transparency and community. That&apos;s why
               HabitForge is open source and free for everyone.
             </p>
@@ -586,12 +590,14 @@ export default function Home() {
             variants={staggerContainer}
           >
             <motion.div
-              className="text-center p-8 bg-white/5 rounded-3xl backdrop-blur-sm border border-white/10"
+              className="text-center p-8 bg-white/80 dark:bg-white/5 rounded-3xl backdrop-blur-sm border border-slate-200 dark:border-white/10 shadow-lg dark:shadow-none"
               variants={fadeInUp}
             >
-              <Github className="w-16 h-16 text-purple-400 mx-auto mb-6" />
-              <h3 className="text-2xl font-bold mb-4">Open Source</h3>
-              <p className="text-slate-300 mb-6 leading-relaxed">
+              <Github className="w-16 h-16 text-purple-600 dark:text-purple-400 mx-auto mb-6" />
+              <h3 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">
+                Open Source
+              </h3>
+              <p className="text-slate-600 dark:text-slate-300 mb-6 leading-relaxed">
                 Full source code available on GitHub. Contribute, fork, or learn
                 from our implementation.
               </p>
@@ -607,18 +613,20 @@ export default function Home() {
             </motion.div>
 
             <motion.div
-              className="text-center p-8 bg-white/5 rounded-3xl backdrop-blur-sm border border-white/10"
+              className="text-center p-8 bg-white/80 dark:bg-white/5 rounded-3xl backdrop-blur-sm border border-slate-200 dark:border-white/10 shadow-lg dark:shadow-none"
               variants={fadeInUp}
             >
-              <Users className="w-16 h-16 text-purple-400 mx-auto mb-6" />
-              <h3 className="text-2xl font-bold mb-4">Community</h3>
-              <p className="text-slate-300 mb-6 leading-relaxed">
+              <Users className="w-16 h-16 text-purple-600 dark:text-purple-400 mx-auto mb-6" />
+              <h3 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">
+                Community
+              </h3>
+              <p className="text-slate-600 dark:text-slate-300 mb-6 leading-relaxed">
                 Join our growing community of developers and users. Share ideas,
                 report bugs, and contribute features.
               </p>
               <a
                 href="#community"
-                className="border-2 border-purple-400 text-purple-400 px-6 py-3 rounded-full font-semibold hover:bg-purple-400 hover:text-white transition-all duration-300 inline-flex items-center gap-2"
+                className="border-2 border-purple-600 dark:border-purple-400 text-purple-600 dark:text-purple-400 px-6 py-3 rounded-full font-semibold hover:bg-purple-600 hover:text-white dark:hover:bg-purple-400 dark:hover:text-white transition-all duration-300 inline-flex items-center gap-2"
               >
                 Join Community
                 <ArrowRight className="w-4 h-4" />
@@ -626,16 +634,18 @@ export default function Home() {
             </motion.div>
 
             <motion.div
-              className="text-center p-8 bg-white/5 rounded-3xl backdrop-blur-sm border border-white/10"
+              className="text-center p-8 bg-white/80 dark:bg-white/5 rounded-3xl backdrop-blur-sm border border-slate-200 dark:border-white/10 shadow-lg dark:shadow-none"
               variants={fadeInUp}
             >
-              <Zap className="w-16 h-16 text-purple-400 mx-auto mb-6" />
-              <h3 className="text-2xl font-bold mb-4">Free Forever</h3>
-              <p className="text-slate-300 mb-6 leading-relaxed">
+              <Zap className="w-16 h-16 text-purple-600 dark:text-purple-400 mx-auto mb-6" />
+              <h3 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">
+                Free Forever
+              </h3>
+              <p className="text-slate-600 dark:text-slate-300 mb-6 leading-relaxed">
                 No hidden costs, no premium features. Everything is free and
                 always will be.
               </p>
-              <div className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+              <div className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent">
                 $0
               </div>
             </motion.div>
@@ -646,7 +656,7 @@ export default function Home() {
       {/* Download Section */}
       <section
         id="download"
-        className="py-24 bg-gradient-to-br from-purple-600 via-blue-600 to-purple-700"
+        className="py-24 bg-gradient-to-br from-slate-100 via-purple-50 to-blue-50 dark:from-purple-600 dark:via-blue-600 dark:to-purple-700"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
@@ -657,14 +667,14 @@ export default function Home() {
             className="space-y-8"
           >
             <div>
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 text-white rounded-full text-sm font-medium mb-6">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 dark:bg-white/20 text-purple-700 dark:text-white rounded-full text-sm font-medium mb-6">
                 <Download className="w-4 h-4" />
                 Get Started Today
               </div>
-              <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
+              <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white mb-6">
                 Start Your Journey Today
               </h2>
-              <p className="text-xl text-purple-100 mb-12 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-xl text-slate-600 dark:text-purple-100 mb-12 max-w-3xl mx-auto leading-relaxed">
                 Start your journey to better habits today. Download HabitForge
                 now and take the first step towards becoming the person you want
                 to be.
@@ -672,19 +682,19 @@ export default function Home() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center">
-              <div className="bg-white/10 backdrop-blur-sm text-white px-6 sm:px-8 py-4 rounded-full text-base sm:text-lg font-semibold border border-white/20 flex items-center gap-3 w-full sm:w-auto justify-center">
+              <div className="bg-white/80 dark:bg-white/10 backdrop-blur-sm text-slate-700 dark:text-white px-6 sm:px-8 py-4 rounded-full text-base sm:text-lg font-semibold border border-slate-200 dark:border-white/20 flex items-center gap-3 w-full sm:w-auto justify-center shadow-lg dark:shadow-none">
                 <Smartphone className="w-5 h-5 sm:w-6 sm:h-6" />
                 Available Soon
                 <span className="text-sm opacity-80">iOS</span>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm text-white px-6 sm:px-8 py-4 rounded-full text-base sm:text-lg font-semibold border border-white/20 flex items-center gap-3 w-full sm:w-auto justify-center">
+              <div className="bg-white/80 dark:bg-white/10 backdrop-blur-sm text-slate-700 dark:text-white px-6 sm:px-8 py-4 rounded-full text-base sm:text-lg font-semibold border border-slate-200 dark:border-white/20 flex items-center gap-3 w-full sm:w-auto justify-center shadow-lg dark:shadow-none">
                 <Smartphone className="w-5 h-5 sm:w-6 sm:h-6" />
                 Available Soon
                 <span className="text-sm opacity-80">Android</span>
               </div>
             </div>
 
-            <div className="text-purple-100">
+            <div className="text-slate-600 dark:text-purple-100">
               <p className="text-sm">
                 Coming soon to App Store and Google Play
               </p>
@@ -694,12 +704,12 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-slate-900 text-white py-16">
+      <footer className="bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8 mb-12">
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-800 dark:to-slate-900 rounded-xl flex items-center justify-center">
                   <Image
                     src="/icon.png"
                     alt="HabitForge Logo"
@@ -708,21 +718,25 @@ export default function Home() {
                     className="w-6 h-6"
                   />
                 </div>
-                <span className="text-xl font-bold">HabitForge</span>
+                <span className="text-xl font-bold text-slate-900 dark:text-white">
+                  HabitForge
+                </span>
               </div>
-              <p className="text-slate-400 leading-relaxed">
+              <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
                 Transform your life by tracking and breaking bad habits with our
                 intuitive app.
               </p>
             </div>
 
             <div>
-              <h3 className="font-semibold mb-6 text-lg">Product</h3>
-              <ul className="space-y-3 text-slate-400">
+              <h3 className="font-semibold mb-6 text-lg text-slate-900 dark:text-white">
+                Product
+              </h3>
+              <ul className="space-y-3 text-slate-600 dark:text-slate-400">
                 <li>
                   <a
                     href="#features"
-                    className="hover:text-white transition-colors"
+                    className="hover:text-slate-900 dark:hover:text-white transition-colors"
                   >
                     Features
                   </a>
@@ -730,7 +744,7 @@ export default function Home() {
                 <li>
                   <a
                     href="#download"
-                    className="hover:text-white transition-colors"
+                    className="hover:text-slate-900 dark:hover:text-white transition-colors"
                   >
                     Download
                   </a>
@@ -738,7 +752,7 @@ export default function Home() {
                 <li>
                   <a
                     href="#story"
-                    className="hover:text-white transition-colors"
+                    className="hover:text-slate-900 dark:hover:text-white transition-colors"
                   >
                     About
                   </a>
@@ -747,14 +761,16 @@ export default function Home() {
             </div>
 
             <div>
-              <h3 className="font-semibold mb-6 text-lg">Community</h3>
-              <ul className="space-y-3 text-slate-400">
+              <h3 className="font-semibold mb-6 text-lg text-slate-900 dark:text-white">
+                Community
+              </h3>
+              <ul className="space-y-3 text-slate-600 dark:text-slate-400">
                 <li>
                   <a
                     href="https://github.com/Eragon67360/habit-forge"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-white transition-colors"
+                    className="hover:text-slate-900 dark:hover:text-white transition-colors"
                   >
                     GitHub
                   </a>
@@ -763,34 +779,41 @@ export default function Home() {
             </div>
 
             <div>
-              <h3 className="font-semibold mb-6 text-lg">Connect</h3>
-              <div className="flex space-x-4">
-                <a
-                  href="https://github.com/Eragon67360/habit-forge"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 transition-all duration-300"
-                >
-                  <Github className="w-5 h-5" />
-                </a>
-                <a
-                  href="mailto:thomas-moser@orange.fr"
-                  className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 transition-all duration-300"
-                >
-                  <Mail className="w-5 h-5" />
-                </a>
+              <h3 className="font-semibold mb-6 text-lg text-slate-900 dark:text-white">
+                Connect
+              </h3>
+              <div className="flex flex-col space-y-4">
+                <div className="flex space-x-4">
+                  <a
+                    href="https://github.com/Eragon67360/habit-forge"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 bg-slate-200 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-slate-900 hover:bg-slate-300 dark:hover:text-white dark:hover:bg-slate-700 transition-all duration-300"
+                  >
+                    <Github className="w-5 h-5" />
+                  </a>
+                  <a
+                    href="mailto:thomas-moser@orange.fr"
+                    className="w-10 h-10 bg-slate-200 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-slate-900 hover:bg-slate-300 dark:hover:text-white dark:hover:bg-slate-700 transition-all duration-300"
+                  >
+                    <Mail className="w-5 h-5" />
+                  </a>
+                </div>
+                <div className="flex items-center">
+                  <ThemeSwitcher />
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="border-t border-slate-800 pt-8 text-center text-slate-400">
+          <div className="border-t border-slate-300 dark:border-slate-800 pt-8 text-center text-slate-600 dark:text-slate-400">
             <p>
               &copy; 2024 HabitForge. All rights reserved. Made with ❤️ by{" "}
               <a
                 href="https://www.linkedin.com/in/thomas-moser67"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-purple-400 hover:text-purple-300 transition-colors"
+                className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors"
               >
                 Thomas Moser
               </a>
