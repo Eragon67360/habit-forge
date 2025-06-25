@@ -1,14 +1,14 @@
-import { getThemeColors } from '@/constants/Data';
-import { useAppStore } from '@/store/useAppStore';
-import React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { getThemeColors } from "@/constants/Data";
+import { useAppStore } from "@/store/useAppStore";
+import React from "react";
+import { Text, TouchableOpacity, View } from "react-native";
 
 interface AccessibilityWrapperProps {
   children: React.ReactNode;
   accessible?: boolean;
   accessibilityLabel?: string;
   accessibilityHint?: string;
-  accessibilityRole?: 'button' | 'header' | 'text' | 'image' | 'none';
+  accessibilityRole?: "button" | "header" | "text" | "image" | "none";
   accessibilityState?: {
     disabled?: boolean;
     selected?: boolean;
@@ -25,7 +25,7 @@ export const AccessibilityWrapper: React.FC<AccessibilityWrapperProps> = ({
   accessible = true,
   accessibilityLabel,
   accessibilityHint,
-  accessibilityRole = 'none',
+  accessibilityRole = "none",
   accessibilityState,
   onAccessibilityTap,
   style,
@@ -64,7 +64,7 @@ export const AccessibleButton: React.FC<AccessibleButtonProps> = ({
   textStyle,
 }) => {
   const { currentTheme } = useAppStore();
-  const COLORS = getThemeColors(currentTheme === 'dark');
+  const COLORS = getThemeColors(currentTheme === "dark");
 
   return (
     <TouchableOpacity
@@ -74,7 +74,7 @@ export const AccessibleButton: React.FC<AccessibleButtonProps> = ({
           paddingHorizontal: 16,
           paddingVertical: 12,
           borderRadius: 12,
-          alignItems: 'center',
+          alignItems: "center",
         },
         style,
       ]}
@@ -89,9 +89,9 @@ export const AccessibleButton: React.FC<AccessibleButtonProps> = ({
       <Text
         style={[
           {
-            color: disabled ? COLORS.textSecondary : 'white',
+            color: disabled ? COLORS.textSecondary : "white",
             fontSize: 16,
-            fontWeight: '600',
+            fontWeight: "600",
           },
           textStyle,
         ]}
@@ -105,14 +105,14 @@ export const AccessibleButton: React.FC<AccessibleButtonProps> = ({
 interface AccessibleTextProps {
   children: React.ReactNode;
   style?: any;
-  accessibilityRole?: 'header' | 'text' | 'none';
+  accessibilityRole?: "header" | "text" | "none";
   accessibilityLabel?: string;
 }
 
 export const AccessibleText: React.FC<AccessibleTextProps> = ({
   children,
   style,
-  accessibilityRole = 'text',
+  accessibilityRole = "text",
   accessibilityLabel,
 }) => {
   return (
@@ -125,4 +125,4 @@ export const AccessibleText: React.FC<AccessibleTextProps> = ({
       {children}
     </Text>
   );
-}; 
+};

@@ -1,5 +1,5 @@
-import * as Haptics from 'expo-haptics';
-import { Platform } from 'react-native';
+import * as Haptics from "expo-haptics";
+import { Platform } from "react-native";
 
 export class HapticService {
   private static instance: HapticService;
@@ -19,7 +19,7 @@ export class HapticService {
   }
 
   private shouldTrigger(): boolean {
-    return this.isEnabled && Platform.OS === 'ios';
+    return this.isEnabled && Platform.OS === "ios";
   }
 
   // Light impact for subtle interactions
@@ -106,4 +106,4 @@ export class HapticService {
 }
 
 // Export singleton instance
-export const haptics = HapticService.getInstance(); 
+export const haptics = HapticService.getInstance();

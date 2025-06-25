@@ -30,10 +30,10 @@ export default function SettingsScreen() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [newUsername, setNewUsername] = useState("");
   const [passwordErrors, setPasswordErrors] = useState<Record<string, string>>(
-    {}
+    {},
   );
   const [usernameErrors, setUsernameErrors] = useState<Record<string, string>>(
-    {}
+    {},
   );
 
   const {
@@ -261,7 +261,7 @@ export default function SettingsScreen() {
         thumbColor={value ? COLORS.primary : COLORS.textSecondary}
         ios_backgroundColor={COLORS.border}
       />
-    )
+    ),
   );
 
   UnifiedToggle.displayName = "UnifiedToggle";
@@ -280,7 +280,7 @@ export default function SettingsScreen() {
             resetApp();
           },
         },
-      ]
+      ],
     );
   }, [resetApp]);
 
@@ -296,7 +296,7 @@ export default function SettingsScreen() {
         setTheme(theme);
       }
     },
-    [updatePreferences, setTheme]
+    [updatePreferences, setTheme],
   );
 
   const handleNotificationToggle = useCallback(
@@ -311,7 +311,7 @@ export default function SettingsScreen() {
 
       updateNotificationSettings(newSettings);
     },
-    [user, updateNotificationSettings]
+    [user, updateNotificationSettings],
   );
 
   const handleTestNotification = useCallback(async () => {
@@ -320,17 +320,17 @@ export default function SettingsScreen() {
       await notificationService.sendImmediateNotification(
         "🧪 Test Notification",
         "This is a test notification to verify the system is working!",
-        { type: "test" }
+        { type: "test" },
       );
       Alert.alert(
         "Success",
-        "Test notification sent! Check your notification panel."
+        "Test notification sent! Check your notification panel.",
       );
     } catch (error) {
       haptics.error();
       Alert.alert(
         "Error",
-        "Failed to send test notification. Check permissions."
+        "Failed to send test notification. Check permissions.",
       );
     }
   }, []);
@@ -359,11 +359,11 @@ export default function SettingsScreen() {
                 Alert.alert("Success", "Password protection disabled.");
               },
             },
-          ]
+          ],
         );
       }
     },
-    [updateUser]
+    [updateUser],
   );
 
   const handleUsernameChange = useCallback(() => {
@@ -402,7 +402,7 @@ export default function SettingsScreen() {
     if (user?.hasPassword && user.passwordHash) {
       const isCurrentPasswordValid = await verifyPassword(
         currentPassword,
-        user.passwordHash
+        user.passwordHash,
       );
       if (!isCurrentPasswordValid) {
         errors.currentPassword = "Current password is incorrect";
@@ -453,7 +453,7 @@ export default function SettingsScreen() {
       subtitle?: string,
       rightElement?: React.ReactNode,
       onPress?: () => void,
-      isDestructive?: boolean
+      isDestructive?: boolean,
     ) => (
       <TouchableOpacity
         style={styles.settingItem}
@@ -491,7 +491,7 @@ export default function SettingsScreen() {
         )}
       </TouchableOpacity>
     ),
-    [styles]
+    [styles],
   );
 
   const renderSection = useCallback(
@@ -501,7 +501,7 @@ export default function SettingsScreen() {
         <View style={styles.sectionContent}>{children}</View>
       </View>
     ),
-    [styles]
+    [styles],
   );
 
   if (!user) {
@@ -529,7 +529,7 @@ export default function SettingsScreen() {
               () => {
                 setNewUsername(user.username);
                 setShowUsernameModal(true);
-              }
+              },
             )}
             {renderSettingItem(
               "Password Protection",
@@ -537,9 +537,9 @@ export default function SettingsScreen() {
               <UnifiedToggle
                 value={user.hasPassword}
                 onValueChange={handlePasswordProtectionToggle}
-              />
+              />,
             )}
-          </>
+          </>,
         )}
 
         {renderSection(
@@ -569,9 +569,9 @@ export default function SettingsScreen() {
                     </Text>
                   </TouchableOpacity>
                 ))}
-              </View>
+              </View>,
             )}
-          </>
+          </>,
         )}
 
         {renderSection(
@@ -583,7 +583,7 @@ export default function SettingsScreen() {
               <UnifiedToggle
                 value={user.preferences.notifications.enabled}
                 onValueChange={() => handleNotificationToggle("enabled")}
-              />
+              />,
             )}
             {renderSettingItem(
               "Daily Reminders",
@@ -592,7 +592,7 @@ export default function SettingsScreen() {
                 value={user.preferences.notifications.dailyReminders}
                 onValueChange={() => handleNotificationToggle("dailyReminders")}
                 disabled={!user.preferences.notifications.enabled}
-              />
+              />,
             )}
             {renderSettingItem(
               "Streak Milestones",
@@ -603,7 +603,7 @@ export default function SettingsScreen() {
                   handleNotificationToggle("streakMilestones")
                 }
                 disabled={!user.preferences.notifications.enabled}
-              />
+              />,
             )}
             {renderSettingItem(
               "Encouraging Messages",
@@ -614,15 +614,15 @@ export default function SettingsScreen() {
                   handleNotificationToggle("encouragingMessages")
                 }
                 disabled={!user.preferences.notifications.enabled}
-              />
+              />,
             )}
             {renderSettingItem(
               "Test Notifications",
               "Send a test notification to verify setup",
               undefined,
-              handleTestNotification
+              handleTestNotification,
             )}
-          </>
+          </>,
         )}
 
         {renderSection(
@@ -631,17 +631,17 @@ export default function SettingsScreen() {
             {renderSettingItem(
               "Version",
               `Current version of the app`,
-              <Text style={styles.settingValue}>{APP_CONFIG.version}</Text>
+              <Text style={styles.settingValue}>{APP_CONFIG.version}</Text>,
             )}
             {renderSettingItem(
               "Developer",
               "Built with ❤️ by",
-              <Text style={styles.settingValue}>{APP_CONFIG.developer}</Text>
+              <Text style={styles.settingValue}>{APP_CONFIG.developer}</Text>,
             )}
             {renderSettingItem(
               "Contact",
               "Get in touch for support",
-              <Text style={styles.settingValue}>{APP_CONFIG.contact}</Text>
+              <Text style={styles.settingValue}>{APP_CONFIG.contact}</Text>,
             )}
             {renderSettingItem(
               "AI API Status",
@@ -659,9 +659,9 @@ export default function SettingsScreen() {
                 ]}
               >
                 {process.env.EXPO_PUBLIC_OPENAI_API_KEY ? "✅" : "❌"}
-              </Text>
+              </Text>,
             )}
-          </>
+          </>,
         )}
 
         {renderSection(
@@ -672,9 +672,9 @@ export default function SettingsScreen() {
               "Permanently delete all your data and start fresh",
               undefined,
               handleResetAppData,
-              true
+              true,
             )}
-          </>
+          </>,
         )}
       </ScrollView>
 

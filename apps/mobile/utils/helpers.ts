@@ -1,6 +1,6 @@
-import { APP_CONFIG } from '@/constants/Data';
-import { ValidationError } from '@/types';
-import * as Crypto from 'expo-crypto';
+import { APP_CONFIG } from "@/constants/Data";
+import { ValidationError } from "@/types";
+import * as Crypto from "expo-crypto";
 
 /**
  * Generate a unique ID for entities
@@ -16,23 +16,23 @@ export const generateId = (): string => {
 export const hashPassword = async (password: string): Promise<string> => {
   try {
     // Ensure password is a valid string
-    if (typeof password !== 'string') {
+    if (typeof password !== "string") {
       throw new Error(`Password must be a string, got ${typeof password}`);
     }
-    
+
     if (password.length === 0) {
-      throw new Error('Password cannot be empty');
+      throw new Error("Password cannot be empty");
     }
-    
+
     // Add a salt to make the hash more secure
-    const salt = 'HabitForge_Salt_2024';
+    const salt = "HabitForge_Salt_2024";
     const saltedPassword = password + salt;
-    
+
     const hashedPassword = await Crypto.digestStringAsync(
       Crypto.CryptoDigestAlgorithm.SHA256,
-      saltedPassword
+      saltedPassword,
     );
-    
+
     return hashedPassword;
   } catch (error) {
     throw error;
@@ -42,17 +42,20 @@ export const hashPassword = async (password: string): Promise<string> => {
 /**
  * Verify password against hash
  */
-export const verifyPassword = async (password: string, hash: string): Promise<boolean> => {
+export const verifyPassword = async (
+  password: string,
+  hash: string,
+): Promise<boolean> => {
   try {
     // Hash the provided password with the same salt
-    const salt = 'HabitForge_Salt_2024';
+    const salt = "HabitForge_Salt_2024";
     const saltedPassword = password + salt;
-    
+
     const newHash = await Crypto.digestStringAsync(
       Crypto.CryptoDigestAlgorithm.SHA256,
-      saltedPassword
+      saltedPassword,
     );
-    
+
     return newHash === hash;
   } catch (error) {
     throw error;
@@ -64,21 +67,21 @@ export const verifyPassword = async (password: string, hash: string): Promise<bo
  */
 export const validatePassword = (password: string): ValidationError[] => {
   const errors: ValidationError[] = [];
-  
+
   if (password.length !== APP_CONFIG.passwordMaxLength) {
     errors.push({
-      field: 'password',
+      field: "password",
       message: `Password must be exactly ${APP_CONFIG.passwordMaxLength} digits`,
     });
   }
-  
+
   if (!/^\d+$/.test(password)) {
     errors.push({
-      field: 'password',
-      message: 'Password must contain only numbers',
+      field: "password",
+      message: "Password must contain only numbers",
     });
   }
-  
+
   return errors;
 };
 
@@ -87,28 +90,28 @@ export const validatePassword = (password: string): ValidationError[] => {
  */
 export const validateUsername = (username: string): ValidationError[] => {
   const errors: ValidationError[] = [];
-  
+
   if (username.length < APP_CONFIG.usernameMinLength) {
     errors.push({
-      field: 'username',
+      field: "username",
       message: `Username must be at least ${APP_CONFIG.usernameMinLength} characters`,
     });
   }
-  
+
   if (username.length > APP_CONFIG.usernameMaxLength) {
     errors.push({
-      field: 'username',
+      field: "username",
       message: `Username must be no more than ${APP_CONFIG.usernameMaxLength} characters`,
     });
   }
-  
+
   if (!/^[a-zA-Z0-9_]+$/.test(username)) {
     errors.push({
-      field: 'username',
-      message: 'Username can only contain letters, numbers, and underscores',
+      field: "username",
+      message: "Username can only contain letters, numbers, and underscores",
     });
   }
-  
+
   return errors;
 };
 
@@ -118,11 +121,11 @@ export const validateUsername = (username: string): ValidationError[] => {
 export const formatDate = (date: Date): string => {
   const today = new Date();
   const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-  
+
   if (date.toDateString() === today.toDateString()) {
-    return 'Today';
+    return "Today";
   } else if (date.toDateString() === yesterday.toDateString()) {
-    return 'Yesterday';
+    return "Yesterday";
   } else {
     return date.toLocaleDateString();
   }
@@ -132,7 +135,7 @@ export const formatDate = (date: Date): string => {
  * Format time for display
  */
 export const formatTime = (date: Date): string => {
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 };
 
 /**
@@ -198,7 +201,7 @@ export const getEndOfMonth = (date: Date = new Date()): Date => {
  */
 export const debounce = <T extends (...args: any[]) => any>(
   func: T,
-  wait: number
+  wait: number,
 ): ((...args: Parameters<T>) => void) => {
   let timeout: ReturnType<typeof setTimeout>;
   return (...args: Parameters<T>) => {
@@ -219,11 +222,11 @@ export const capitalize = (str: string): string => {
  */
 export const getRandomEncouragingMessage = (): string => {
   const messages = [
-    'You\'re doing great! 🌟',
-    'Keep up the amazing work! 💪',
-    'Every step counts! 🎯',
-    'You\'ve got this! ✨',
-    'Small progress is still progress! 🌱',
+    "You're doing great! 🌟",
+    "Keep up the amazing work! 💪",
+    "Every step counts! 🎯",
+    "You've got this! ✨",
+    "Small progress is still progress! 🌱",
   ];
   return messages[Math.floor(Math.random() * messages.length)];
 };
@@ -243,9 +246,9 @@ export const shouldResetStreak = (lastCheckIn: Date): boolean => {
 export const calculateCompletionRate = (
   checkIns: Date[],
   startDate: Date,
-  endDate: Date
+  endDate: Date,
 ): number => {
   const totalDays = daysBetween(endDate, startDate) + 1;
   const completedDays = checkIns.length;
   return Math.round((completedDays / totalDays) * 100);
-}; 
+};

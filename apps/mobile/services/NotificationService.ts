@@ -1,6 +1,6 @@
-import { UserPreferences } from '@/types';
-import * as Notifications from 'expo-notifications';
-import { Platform } from 'react-native';
+import { UserPreferences } from "@/types";
+import * as Notifications from "expo-notifications";
+import { Platform } from "react-native";
 
 // Configure notification behavior
 Notifications.setNotificationHandler({
@@ -32,7 +32,7 @@ export class NotificationService {
   async initialize(): Promise<boolean> {
     try {
       const { status } = await Notifications.requestPermissionsAsync();
-      if (status !== 'granted') {
+      if (status !== "granted") {
         return false;
       }
 
@@ -48,12 +48,12 @@ export class NotificationService {
       });
 
       // Configure for Android
-      if (Platform.OS === 'android') {
-        await Notifications.setNotificationChannelAsync('default', {
-          name: 'default',
+      if (Platform.OS === "android") {
+        await Notifications.setNotificationChannelAsync("default", {
+          name: "default",
           importance: Notifications.AndroidImportance.HIGH,
           vibrationPattern: [0, 250, 250, 250],
-          lightColor: '#A076F9',
+          lightColor: "#A076F9",
         });
       }
 
@@ -69,18 +69,18 @@ export class NotificationService {
    */
   async scheduleDailyReminder(
     time: string,
-    preferences: UserPreferences
+    preferences: UserPreferences,
   ): Promise<void> {
     if (!preferences.notifications.dailyReminders) return;
 
     try {
-      const [hour, minute] = time.split(':').map(Number);
-      
+      const [hour, minute] = time.split(":").map(Number);
+
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: 'HabitForge Reminder',
-          body: 'Time to check in on your habits!',
-          data: { type: 'daily_reminder' },
+          title: "HabitForge Reminder",
+          body: "Time to check in on your habits!",
+          data: { type: "daily_reminder" },
         },
         trigger: {
           hour,
@@ -100,14 +100,14 @@ export class NotificationService {
   async scheduleStreakMilestone(
     habitName: string,
     streakCount: number,
-    scheduledDate: Date
+    scheduledDate: Date,
   ): Promise<void> {
     try {
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: '🎉 Streak Milestone!',
+          title: "🎉 Streak Milestone!",
           body: `Congratulations! You've reached a ${streakCount}-day streak with "${habitName}"!`,
-          data: { type: 'streak_milestone', habitName, streakCount },
+          data: { type: "streak_milestone", habitName, streakCount },
         },
         trigger: null, // Send immediately
       });
@@ -121,14 +121,14 @@ export class NotificationService {
    */
   async scheduleEncouragement(
     message: string,
-    scheduledDate: Date
+    scheduledDate: Date,
   ): Promise<void> {
     try {
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: '💪 Keep Going!',
-          body: 'Every day is a new opportunity to build better habits.',
-          data: { type: 'encouragement' },
+          title: "💪 Keep Going!",
+          body: "Every day is a new opportunity to build better habits.",
+          data: { type: "encouragement" },
         },
         trigger: null, // Send immediately
       });
@@ -162,7 +162,9 @@ export class NotificationService {
   /**
    * Get all scheduled notifications
    */
-  async getScheduledNotifications(): Promise<Notifications.NotificationRequest[]> {
+  async getScheduledNotifications(): Promise<
+    Notifications.NotificationRequest[]
+  > {
     try {
       return await Notifications.getAllScheduledNotificationsAsync();
     } catch (error) {
@@ -176,7 +178,7 @@ export class NotificationService {
   async sendImmediateNotification(
     title: string,
     body: string,
-    data?: Record<string, any>
+    data?: Record<string, any>,
   ): Promise<void> {
     try {
       await Notifications.scheduleNotificationAsync({
@@ -195,7 +197,9 @@ export class NotificationService {
   /**
    * Update notification settings based on user preferences
    */
-  async updateNotificationSettings(preferences: UserPreferences): Promise<void> {
+  async updateNotificationSettings(
+    preferences: UserPreferences,
+  ): Promise<void> {
     try {
       // Cancel existing notifications
       await this.cancelAllNotifications();
@@ -204,7 +208,7 @@ export class NotificationService {
       if (preferences.notifications.dailyReminders) {
         await this.scheduleDailyReminder(
           preferences.notifications.reminderTime,
-          preferences
+          preferences,
         );
       }
     } catch (error) {
@@ -218,19 +222,19 @@ export class NotificationService {
   private getStreakMilestoneMessage(streakCount: number): string {
     switch (streakCount) {
       case 1:
-        return 'First day down! You\'re on your way! 🌟';
+        return "First day down! You're on your way! 🌟";
       case 7:
-        return 'A whole week! You\'re building momentum! 💪';
+        return "A whole week! You're building momentum! 💪";
       case 10:
-        return 'Double digits! You\'re unstoppable! 🎯';
+        return "Double digits! You're unstoppable! 🎯";
       case 30:
-        return 'A month strong! You\'re creating lasting change! 🏆';
+        return "A month strong! You're creating lasting change! 🏆";
       case 50:
-        return '50 days! You\'re absolutely incredible! 🌟';
+        return "50 days! You're absolutely incredible! 🌟";
       case 100:
-        return '100 days! You\'re a true champion! 👑';
+        return "100 days! You're a true champion! 👑";
       case 365:
-        return 'A full year! You\'re legendary! 🎊';
+        return "A full year! You're legendary! 🎊";
       default:
         return `Amazing! ${streakCount} days and counting! 🌟`;
     }
@@ -242,7 +246,7 @@ export class NotificationService {
   async areNotificationsEnabled(): Promise<boolean> {
     try {
       const { status } = await Notifications.getPermissionsAsync();
-      return status === 'granted';
+      return status === "granted";
     } catch (error) {
       return false;
     }
@@ -254,7 +258,7 @@ export class NotificationService {
   async requestPermissions(): Promise<boolean> {
     try {
       const { status } = await Notifications.requestPermissionsAsync();
-      return status === 'granted';
+      return status === "granted";
     } catch (error) {
       return false;
     }
@@ -262,4 +266,4 @@ export class NotificationService {
 }
 
 // Export singleton instance
-export const notificationService = NotificationService.getInstance(); 
+export const notificationService = NotificationService.getInstance();
