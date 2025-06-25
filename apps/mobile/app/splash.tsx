@@ -1,43 +1,38 @@
-import { APP_CONFIG, getThemeColors } from '@/constants/Data';
-import { useAppStore } from '@/store/useAppStore';
-import { router } from 'expo-router';
-import React, { useEffect } from 'react';
-import {
-  ActivityIndicator,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { APP_CONFIG, getThemeColors } from "@/constants/Data";
+import { useAppStore } from "@/store/useAppStore";
+import { router } from "expo-router";
+import React, { useEffect } from "react";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function SplashScreen() {
   const { user, currentTheme } = useAppStore();
 
   // Get theme-aware colors
-  const COLORS = getThemeColors(currentTheme === 'dark');
+  const COLORS = getThemeColors(currentTheme === "dark");
 
   useEffect(() => {
     const initializeApp = async () => {
       try {
         // Simulate loading time for better UX
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
         // Check if user exists in storage
         if (user) {
           // User exists, check if password protection is needed
           if (user.hasPassword) {
-            router.replace('/auth');
+            router.replace("/auth");
           } else {
-            router.replace('/(tabs)');
+            router.replace("/(tabs)");
           }
         } else {
           // No user exists, go to onboarding
-          router.replace('/onboarding');
+          router.replace("/onboarding");
         }
       } catch (error) {
-        console.error('🌅 [splash] Error during initialization:', error);
+        console.error("🌅 [splash] Error during initialization:", error);
         // Fallback to onboarding on error
-        router.replace('/onboarding');
+        router.replace("/onboarding");
       }
     };
 
@@ -52,12 +47,12 @@ export default function SplashScreen() {
     },
     content: {
       flex: 1,
-      justifyContent: 'space-between',
-      alignItems: 'center',
+      justifyContent: "space-between",
+      alignItems: "center",
       padding: 40,
     },
     logoContainer: {
-      alignItems: 'center',
+      alignItems: "center",
       marginTop: 60,
     },
     logo: {
@@ -67,7 +62,7 @@ export default function SplashScreen() {
     },
     appName: {
       fontSize: 36,
-      fontWeight: 'bold',
+      fontWeight: "bold",
       color: COLORS.text,
       marginBottom: 8,
       letterSpacing: 1,
@@ -75,29 +70,29 @@ export default function SplashScreen() {
     tagline: {
       fontSize: 16,
       color: COLORS.textSecondary,
-      textAlign: 'center',
+      textAlign: "center",
       lineHeight: 24,
       maxWidth: 280,
     },
     welcomeContainer: {
-      alignItems: 'center',
+      alignItems: "center",
       maxWidth: 300,
     },
     welcomeTitle: {
       fontSize: 24,
-      fontWeight: 'bold',
+      fontWeight: "bold",
       color: COLORS.text,
       marginBottom: 12,
-      textAlign: 'center',
+      textAlign: "center",
     },
     welcomeMessage: {
       fontSize: 16,
       color: COLORS.textSecondary,
-      textAlign: 'center',
+      textAlign: "center",
       lineHeight: 24,
     },
     loadingContainer: {
-      alignItems: 'center',
+      alignItems: "center",
     },
     loadingText: {
       fontSize: 14,
@@ -105,7 +100,7 @@ export default function SplashScreen() {
       marginTop: 12,
     },
     footer: {
-      alignItems: 'center',
+      alignItems: "center",
       marginBottom: 20,
     },
     footerText: {
@@ -127,7 +122,8 @@ export default function SplashScreen() {
         <View style={styles.welcomeContainer}>
           <Text style={styles.welcomeTitle}>Welcome to HabitForge</Text>
           <Text style={styles.welcomeMessage}>
-            Building better habits starts with a single step. Let&apos;s forge your path to success.
+            Building better habits starts with a single step. Let&apos;s forge
+            your path to success.
           </Text>
         </View>
 
@@ -139,11 +135,9 @@ export default function SplashScreen() {
 
         {/* Version Info */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            Version {APP_CONFIG.version}
-          </Text>
+          <Text style={styles.footerText}>Version {APP_CONFIG.version}</Text>
         </View>
       </View>
     </SafeAreaView>
   );
-} 
+}

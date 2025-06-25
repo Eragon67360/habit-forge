@@ -1,12 +1,19 @@
-import { AccessibleButton, AccessibleText } from '@/components/AccessibilityWrapper';
-import { AdvancedFilters } from '@/components/AdvancedFilters';
-import { AnalyticsChart } from '@/components/AnalyticsChart';
-import { AnimatedCard } from '@/components/AnimatedCard';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import { getThemeColors, HABIT_CATEGORIES, PREDEFINED_HABITS } from '@/constants/Data';
-import { useAppStore } from '@/store/useAppStore';
-import { Habit, HabitCategory } from '@/types';
-import React, { useState } from 'react';
+import {
+  AccessibleButton,
+  AccessibleText,
+} from "@/components/AccessibilityWrapper";
+import { AdvancedFilters } from "@/components/AdvancedFilters";
+import { AnalyticsChart } from "@/components/AnalyticsChart";
+import { AnimatedCard } from "@/components/AnimatedCard";
+import { IconSymbol } from "@/components/ui/IconSymbol";
+import {
+  getThemeColors,
+  HABIT_CATEGORIES,
+  PREDEFINED_HABITS,
+} from "@/constants/Data";
+import { useAppStore } from "@/store/useAppStore";
+import { Habit, HabitCategory } from "@/types";
+import React, { useState } from "react";
 import {
   Alert,
   Modal,
@@ -16,70 +23,72 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HabitsScreen() {
-  const [selectedCategory, setSelectedCategory] = useState<HabitCategory | 'all'>('all');
-  const [selectedType, setSelectedType] = useState<'all' | 'good' | 'bad'>('all');
+  const [selectedCategory, setSelectedCategory] = useState<
+    HabitCategory | "all"
+  >("all");
+  const [selectedType, setSelectedType] = useState<"all" | "good" | "bad">(
+    "all",
+  );
   const [showAddModal, setShowAddModal] = useState(false);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [newHabit, setNewHabit] = useState({
-    name: '',
-    description: '',
-    category: 'exercise' as HabitCategory,
-    type: 'good' as 'good' | 'bad',
-    frequency: 'daily' as 'daily' | 'weekly' | 'monthly',
-    icon: '🏃‍♂️',
+    name: "",
+    description: "",
+    category: "exercise" as HabitCategory,
+    type: "good" as "good" | "bad",
+    frequency: "daily" as "daily" | "weekly" | "monthly",
+    icon: "🏃‍♂️",
   });
   const [habitErrors, setHabitErrors] = useState<Record<string, string>>({});
-  const [addMode, setAddMode] = useState<'custom' | 'predefined'>('custom');
+  const [addMode, setAddMode] = useState<"custom" | "predefined">("custom");
   const [advancedFilters, setAdvancedFilters] = useState({
-    dateRange: 'all' as 'all' | 'today' | 'week' | 'month',
-    sortBy: 'name' as 'name' | 'streak' | 'created',
-    sortOrder: 'asc' as 'asc' | 'desc',
+    dateRange: "all" as "all" | "today" | "week" | "month",
+    sortBy: "name" as "name" | "streak" | "created",
+    sortOrder: "asc" as "asc" | "desc",
     showInactive: true,
   });
-  
-  const {
-    habits,
-    toggleHabitActive,
-    deleteHabit,
-    currentTheme,
-    addHabit,
-  } = useAppStore();
+
+  const { habits, toggleHabitActive, deleteHabit, currentTheme, addHabit } =
+    useAppStore();
 
   // Get theme-aware colors
-  const COLORS = getThemeColors(currentTheme === 'dark');
+  const COLORS = getThemeColors(currentTheme === "dark");
 
   const filteredHabits = habits.filter((habit: Habit) => {
-    const matchesCategory = selectedCategory === 'all' || habit.category === selectedCategory;
-    const matchesType = selectedType === 'all' || habit.type === selectedType;
-    const matchesSearch = habit.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         habit.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory =
+      selectedCategory === "all" || habit.category === selectedCategory;
+    const matchesType = selectedType === "all" || habit.type === selectedType;
+    const matchesSearch =
+      habit.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      habit.description?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesInactive = advancedFilters.showInactive || habit.isActive;
-    
+
     return matchesCategory && matchesType && matchesSearch && matchesInactive;
   });
 
   // Sort habits based on advanced filters
   const sortedHabits = [...filteredHabits].sort((a, b) => {
     let comparison = 0;
-    
+
     switch (advancedFilters.sortBy) {
-      case 'name':
+      case "name":
         comparison = a.name.localeCompare(b.name);
         break;
-      case 'streak':
+      case "streak":
         comparison = a.streak - b.streak;
         break;
-      case 'created':
-        comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      case "created":
+        comparison =
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
         break;
     }
-    
-    return advancedFilters.sortOrder === 'asc' ? comparison : -comparison;
+
+    return advancedFilters.sortOrder === "asc" ? comparison : -comparison;
   });
 
   const handleToggleHabit = (habitId: string) => {
@@ -88,20 +97,22 @@ export default function HabitsScreen() {
 
   const handleDeleteHabit = (habit: Habit) => {
     Alert.alert(
-      'Delete Habit',
+      "Delete Habit",
       `Are you sure you want to delete "${habit.name}"? This action cannot be undone.`,
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: "Cancel", style: "cancel" },
         {
-          text: 'Delete',
-          style: 'destructive',
+          text: "Delete",
+          style: "destructive",
           onPress: () => deleteHabit(habit.id),
         },
-      ]
+      ],
     );
   };
 
-  const handleAddFromPredefined = (predefinedHabit: typeof PREDEFINED_HABITS[0]) => {
+  const handleAddFromPredefined = (
+    predefinedHabit: (typeof PREDEFINED_HABITS)[0],
+  ) => {
     try {
       const habitData = {
         name: predefinedHabit.name,
@@ -114,37 +125,37 @@ export default function HabitsScreen() {
         isActive: true,
         lastCheckIn: undefined,
       };
-      
+
       addHabit(habitData);
       setShowAddModal(false);
-      Alert.alert('Success', `"${predefinedHabit.name}" added to your habits!`);
+      Alert.alert("Success", `"${predefinedHabit.name}" added to your habits!`);
     } catch {
-      Alert.alert('Error', 'Failed to add predefined habit. Please try again.');
+      Alert.alert("Error", "Failed to add predefined habit. Please try again.");
     }
   };
 
   const validateHabitForm = (): boolean => {
     const errors: Record<string, string> = {};
-    
+
     if (!newHabit.name.trim()) {
-      errors.name = 'Habit name is required';
+      errors.name = "Habit name is required";
     } else if (newHabit.name.trim().length < 2) {
-      errors.name = 'Habit name must be at least 2 characters';
+      errors.name = "Habit name must be at least 2 characters";
     } else if (newHabit.name.trim().length > 50) {
-      errors.name = 'Habit name must be less than 50 characters';
+      errors.name = "Habit name must be less than 50 characters";
     }
-    
+
     if (newHabit.description && newHabit.description.length > 200) {
-      errors.description = 'Description must be less than 200 characters';
+      errors.description = "Description must be less than 200 characters";
     }
-    
+
     setHabitErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
   const handleCreateHabit = () => {
     if (!validateHabitForm()) return;
-    
+
     try {
       const habitData = {
         name: newHabit.name.trim(),
@@ -157,32 +168,32 @@ export default function HabitsScreen() {
         isActive: true,
         lastCheckIn: undefined,
       };
-      
+
       addHabit(habitData);
       setShowAddModal(false);
       setNewHabit({
-        name: '',
-        description: '',
-        category: 'exercise',
-        type: 'good',
-        frequency: 'daily',
-        icon: '🏃‍♂️',
+        name: "",
+        description: "",
+        category: "exercise",
+        type: "good",
+        frequency: "daily",
+        icon: "🏃‍♂️",
       });
       setHabitErrors({});
-      Alert.alert('Success', 'Habit created successfully!');
+      Alert.alert("Success", "Habit created successfully!");
     } catch {
-      Alert.alert('Error', 'Failed to create habit. Please try again.');
+      Alert.alert("Error", "Failed to create habit. Please try again.");
     }
   };
 
   const handleResetForm = () => {
     setNewHabit({
-      name: '',
-      description: '',
-      category: 'exercise',
-      type: 'good',
-      frequency: 'daily',
-      icon: '🏃‍♂️',
+      name: "",
+      description: "",
+      category: "exercise",
+      type: "good",
+      frequency: "daily",
+      icon: "🏃‍♂️",
     });
     setHabitErrors({});
   };
@@ -197,21 +208,23 @@ export default function HabitsScreen() {
       <TouchableOpacity
         style={[
           styles.filterChip,
-          selectedCategory === 'all' && styles.filterChipActive,
+          selectedCategory === "all" && styles.filterChipActive,
         ]}
-        onPress={() => setSelectedCategory('all')}
+        onPress={() => setSelectedCategory("all")}
         accessible={true}
         accessibilityLabel="Show all categories"
         accessibilityRole="button"
       >
-        <Text style={[
-          styles.filterChipText,
-          selectedCategory === 'all' && styles.filterChipTextActive,
-        ]}>
+        <Text
+          style={[
+            styles.filterChipText,
+            selectedCategory === "all" && styles.filterChipTextActive,
+          ]}
+        >
           All
         </Text>
       </TouchableOpacity>
-      
+
       {Object.entries(HABIT_CATEGORIES).map(([key, category]) => (
         <TouchableOpacity
           key={key}
@@ -225,10 +238,12 @@ export default function HabitsScreen() {
           accessibilityRole="button"
         >
           <Text style={styles.filterChipIcon}>{category.icon}</Text>
-          <Text style={[
-            styles.filterChipText,
-            selectedCategory === key && styles.filterChipTextActive,
-          ]}>
+          <Text
+            style={[
+              styles.filterChipText,
+              selectedCategory === key && styles.filterChipTextActive,
+            ]}
+          >
             {category.name}
           </Text>
         </TouchableOpacity>
@@ -241,53 +256,59 @@ export default function HabitsScreen() {
       <TouchableOpacity
         style={[
           styles.typeChip,
-          selectedType === 'all' && styles.typeChipActive,
+          selectedType === "all" && styles.typeChipActive,
         ]}
-        onPress={() => setSelectedType('all')}
+        onPress={() => setSelectedType("all")}
         accessible={true}
         accessibilityLabel="Show all habit types"
         accessibilityRole="button"
       >
-        <Text style={[
-          styles.typeChipText,
-          selectedType === 'all' && styles.typeChipTextActive,
-        ]}>
+        <Text
+          style={[
+            styles.typeChipText,
+            selectedType === "all" && styles.typeChipTextActive,
+          ]}
+        >
           All Types
         </Text>
       </TouchableOpacity>
-      
+
       <TouchableOpacity
         style={[
           styles.typeChip,
-          selectedType === 'good' && styles.typeChipActive,
+          selectedType === "good" && styles.typeChipActive,
         ]}
-        onPress={() => setSelectedType('good')}
+        onPress={() => setSelectedType("good")}
         accessible={true}
         accessibilityLabel="Show only good habits"
         accessibilityRole="button"
       >
-        <Text style={[
-          styles.typeChipText,
-          selectedType === 'good' && styles.typeChipTextActive,
-        ]}>
+        <Text
+          style={[
+            styles.typeChipText,
+            selectedType === "good" && styles.typeChipTextActive,
+          ]}
+        >
           Good Habits
         </Text>
       </TouchableOpacity>
-      
+
       <TouchableOpacity
         style={[
           styles.typeChip,
-          selectedType === 'bad' && styles.typeChipActive,
+          selectedType === "bad" && styles.typeChipActive,
         ]}
-        onPress={() => setSelectedType('bad')}
+        onPress={() => setSelectedType("bad")}
         accessible={true}
         accessibilityLabel="Show only bad habits"
         accessibilityRole="button"
       >
-        <Text style={[
-          styles.typeChipText,
-          selectedType === 'bad' && styles.typeChipTextActive,
-        ]}>
+        <Text
+          style={[
+            styles.typeChipText,
+            selectedType === "bad" && styles.typeChipTextActive,
+          ]}
+        >
           Bad Habits
         </Text>
       </TouchableOpacity>
@@ -296,13 +317,9 @@ export default function HabitsScreen() {
 
   const renderHabitCard = (habit: Habit, index: number) => {
     const category = HABIT_CATEGORIES[habit.category];
-    
+
     return (
-      <AnimatedCard
-        key={habit.id}
-        delay={index * 100}
-        style={{}}
-      >
+      <AnimatedCard key={habit.id} delay={index * 100} style={{}}>
         <View>
           <View style={styles.habitHeader}>
             <View style={styles.habitIconContainer}>
@@ -323,15 +340,21 @@ export default function HabitsScreen() {
                 {category.name}
               </AccessibleText>
             </View>
-            <View style={[
-              styles.statusBadge,
-              habit.isActive ? styles.statusActive : styles.statusInactive,
-            ]}>
-              <Text style={[
-                styles.statusText,
-                habit.isActive ? styles.statusTextActive : styles.statusTextInactive,
-              ]}>
-                {habit.isActive ? 'Active' : 'Inactive'}
+            <View
+              style={[
+                styles.statusBadge,
+                habit.isActive ? styles.statusActive : styles.statusInactive,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.statusText,
+                  habit.isActive
+                    ? styles.statusTextActive
+                    : styles.statusTextInactive,
+                ]}
+              >
+                {habit.isActive ? "Active" : "Inactive"}
               </Text>
             </View>
           </View>
@@ -343,9 +366,7 @@ export default function HabitsScreen() {
               {habit.description}
             </AccessibleText>
           )}
-          {habit.isActive && (
-            <AnalyticsChart habitId={habit.id} days={7} />
-          )}
+          {habit.isActive && <AnalyticsChart habitId={habit.id} days={7} />}
           <View style={styles.habitStats}>
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>{habit.streak}</Text>
@@ -354,23 +375,26 @@ export default function HabitsScreen() {
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>
-                {habit.lastCheckIn ? formatDate(habit.lastCheckIn) : 'Never'}
+                {habit.lastCheckIn ? formatDate(habit.lastCheckIn) : "Never"}
               </Text>
               <Text style={styles.statLabel}>Last Check-in</Text>
             </View>
           </View>
           <View style={styles.habitActions}>
             <AccessibleButton
-              title={habit.isActive ? 'Deactivate' : 'Activate'}
+              title={habit.isActive ? "Deactivate" : "Activate"}
               onPress={() => handleToggleHabit(habit.id)}
-              hint={`${habit.isActive ? 'Deactivate' : 'Activate'} this habit`}
+              hint={`${habit.isActive ? "Deactivate" : "Activate"} this habit`}
               style={[styles.actionButton, styles.primaryAction]}
               textStyle={styles.primaryActionText}
             />
             <AccessibleButton
               title="Edit"
               onPress={() => {
-                Alert.alert('Edit Habit', 'Edit functionality will be implemented soon.');
+                Alert.alert(
+                  "Edit Habit",
+                  "Edit functionality will be implemented soon.",
+                );
               }}
               hint="Edit this habit"
               style={[styles.actionButton, styles.secondaryAction]}
@@ -413,62 +437,79 @@ export default function HabitsScreen() {
           <TouchableOpacity
             style={[
               styles.modeOption,
-              addMode === 'custom' && styles.modeOptionActive,
+              addMode === "custom" && styles.modeOptionActive,
             ]}
-            onPress={() => setAddMode('custom')}
+            onPress={() => setAddMode("custom")}
           >
-            <Text style={[
-              styles.modeOptionText,
-              addMode === 'custom' && styles.modeOptionTextActive,
-            ]}>
+            <Text
+              style={[
+                styles.modeOptionText,
+                addMode === "custom" && styles.modeOptionTextActive,
+              ]}
+            >
               Custom
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[
               styles.modeOption,
-              addMode === 'predefined' && styles.modeOptionActive,
+              addMode === "predefined" && styles.modeOptionActive,
             ]}
-            onPress={() => setAddMode('predefined')}
+            onPress={() => setAddMode("predefined")}
           >
-            <Text style={[
-              styles.modeOptionText,
-              addMode === 'predefined' && styles.modeOptionTextActive,
-            ]}>
+            <Text
+              style={[
+                styles.modeOptionText,
+                addMode === "predefined" && styles.modeOptionTextActive,
+              ]}
+            >
               Predefined
             </Text>
           </TouchableOpacity>
         </View>
 
         <ScrollView style={styles.modalContent}>
-          {addMode === 'custom' ? (
+          {addMode === "custom" ? (
             <>
               <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>HABIT NAME *</Text>
                 <TextInput
                   style={[styles.input, habitErrors.name && styles.inputError]}
                   value={newHabit.name}
-                  onChangeText={(text) => setNewHabit({ ...newHabit, name: text })}
+                  onChangeText={(text) =>
+                    setNewHabit({ ...newHabit, name: text })
+                  }
                   placeholder="e.g., Daily Exercise"
                   placeholderTextColor={COLORS.textSecondary}
                   maxLength={50}
                 />
-                {habitErrors.name && <Text style={styles.errorText}>{habitErrors.name}</Text>}
+                {habitErrors.name && (
+                  <Text style={styles.errorText}>{habitErrors.name}</Text>
+                )}
               </View>
 
               <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>DESCRIPTION (OPTIONAL)</Text>
                 <TextInput
-                  style={[styles.textArea, habitErrors.description && styles.inputError]}
+                  style={[
+                    styles.textArea,
+                    habitErrors.description && styles.inputError,
+                  ]}
                   value={newHabit.description}
-                  onChangeText={(text) => setNewHabit({ ...newHabit, description: text })}
+                  onChangeText={(text) =>
+                    setNewHabit({ ...newHabit, description: text })
+                  }
                   placeholder="Describe your habit..."
                   placeholderTextColor={COLORS.textSecondary}
                   multiline
                   numberOfLines={3}
                   maxLength={200}
                 />
-                {habitErrors.description && <Text style={styles.errorText}>{habitErrors.description}</Text>}
+                {habitErrors.description && (
+                  <Text style={styles.errorText}>
+                    {habitErrors.description}
+                  </Text>
+                )}
               </View>
 
               <View style={styles.inputContainer}>
@@ -479,15 +520,24 @@ export default function HabitsScreen() {
                       key={key}
                       style={[
                         styles.categoryOption,
-                        newHabit.category === key && styles.categoryOptionActive,
+                        newHabit.category === key &&
+                          styles.categoryOptionActive,
                       ]}
-                      onPress={() => setNewHabit({ ...newHabit, category: key as HabitCategory })}
+                      onPress={() =>
+                        setNewHabit({
+                          ...newHabit,
+                          category: key as HabitCategory,
+                        })
+                      }
                     >
                       <Text style={styles.categoryIcon}>{category.icon}</Text>
-                      <Text style={[
-                        styles.categoryText,
-                        newHabit.category === key && styles.categoryTextActive,
-                      ]}>
+                      <Text
+                        style={[
+                          styles.categoryText,
+                          newHabit.category === key &&
+                            styles.categoryTextActive,
+                        ]}
+                      >
                         {category.name}
                       </Text>
                     </TouchableOpacity>
@@ -501,28 +551,32 @@ export default function HabitsScreen() {
                   <TouchableOpacity
                     style={[
                       styles.typeOption,
-                      newHabit.type === 'good' && styles.typeOptionActive,
+                      newHabit.type === "good" && styles.typeOptionActive,
                     ]}
-                    onPress={() => setNewHabit({ ...newHabit, type: 'good' })}
+                    onPress={() => setNewHabit({ ...newHabit, type: "good" })}
                   >
-                    <Text style={[
-                      styles.typeOptionText,
-                      newHabit.type === 'good' && styles.typeOptionTextActive,
-                    ]}>
+                    <Text
+                      style={[
+                        styles.typeOptionText,
+                        newHabit.type === "good" && styles.typeOptionTextActive,
+                      ]}
+                    >
                       Good Habit
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[
                       styles.typeOption,
-                      newHabit.type === 'bad' && styles.typeOptionActive,
+                      newHabit.type === "bad" && styles.typeOptionActive,
                     ]}
-                    onPress={() => setNewHabit({ ...newHabit, type: 'bad' })}
+                    onPress={() => setNewHabit({ ...newHabit, type: "bad" })}
                   >
-                    <Text style={[
-                      styles.typeOptionText,
-                      newHabit.type === 'bad' && styles.typeOptionTextActive,
-                    ]}>
+                    <Text
+                      style={[
+                        styles.typeOptionText,
+                        newHabit.type === "bad" && styles.typeOptionTextActive,
+                      ]}
+                    >
                       Bad Habit
                     </Text>
                   </TouchableOpacity>
@@ -532,19 +586,28 @@ export default function HabitsScreen() {
               <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>FREQUENCY</Text>
                 <View style={styles.frequencySelector}>
-                  {['daily', 'weekly', 'monthly'].map((freq) => (
+                  {["daily", "weekly", "monthly"].map((freq) => (
                     <TouchableOpacity
                       key={freq}
                       style={[
                         styles.frequencyOption,
-                        newHabit.frequency === freq && styles.frequencyOptionActive,
+                        newHabit.frequency === freq &&
+                          styles.frequencyOptionActive,
                       ]}
-                      onPress={() => setNewHabit({ ...newHabit, frequency: freq as 'daily' | 'weekly' | 'monthly' })}
+                      onPress={() =>
+                        setNewHabit({
+                          ...newHabit,
+                          frequency: freq as "daily" | "weekly" | "monthly",
+                        })
+                      }
                     >
-                      <Text style={[
-                        styles.frequencyOptionText,
-                        newHabit.frequency === freq && styles.frequencyOptionTextActive,
-                      ]}>
+                      <Text
+                        style={[
+                          styles.frequencyOptionText,
+                          newHabit.frequency === freq &&
+                            styles.frequencyOptionTextActive,
+                        ]}
+                      >
                         {freq.charAt(0).toUpperCase() + freq.slice(1)}
                       </Text>
                     </TouchableOpacity>
@@ -569,15 +632,20 @@ export default function HabitsScreen() {
                     onPress={() => handleAddFromPredefined(predefinedHabit)}
                   >
                     <View style={styles.predefinedContent}>
-                      <Text style={styles.predefinedIcon}>{predefinedHabit.icon}</Text>
-                      <Text style={styles.predefinedName}>{predefinedHabit.name}</Text>
+                      <Text style={styles.predefinedIcon}>
+                        {predefinedHabit.icon}
+                      </Text>
+                      <Text style={styles.predefinedName}>
+                        {predefinedHabit.name}
+                      </Text>
                       <Text style={styles.predefinedDescription}>
                         {predefinedHabit.description}
                       </Text>
                     </View>
                     <View style={styles.predefinedMeta}>
                       <Text style={styles.predefinedType}>
-                        {predefinedHabit.type === 'good' ? '✅' : '❌'} {predefinedHabit.type === 'good' ? 'Good' : 'Bad'}
+                        {predefinedHabit.type === "good" ? "✅" : "❌"}{" "}
+                        {predefinedHabit.type === "good" ? "Good" : "Bad"}
                       </Text>
                       <Text style={styles.predefinedFrequency}>
                         {predefinedHabit.suggestedFrequency}
@@ -598,9 +666,9 @@ export default function HabitsScreen() {
       backgroundColor: COLORS.background,
     },
     header: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
       paddingHorizontal: 20,
       paddingVertical: 16,
       borderBottomWidth: 1,
@@ -608,11 +676,11 @@ export default function HabitsScreen() {
     },
     title: {
       fontSize: 28,
-      fontWeight: '700',
+      fontWeight: "700",
       color: COLORS.text,
     },
     headerActions: {
-      flexDirection: 'row',
+      flexDirection: "row",
       gap: 8,
     },
     filterButton: {
@@ -627,9 +695,9 @@ export default function HabitsScreen() {
       borderRadius: 20,
     },
     addButtonText: {
-      color: 'white',
+      color: "white",
       fontSize: 14,
-      fontWeight: '600',
+      fontWeight: "600",
     },
     searchContainer: {
       paddingHorizontal: 20,
@@ -647,16 +715,16 @@ export default function HabitsScreen() {
     },
     filterContainer: {
       paddingHorizontal: 20,
-      marginBlock:8,
+      marginBlock: 8,
       height: 52,
     },
     filterContent: {
       paddingRight: 20,
-      alignItems: 'center',
+      alignItems: "center",
     },
     filterChip: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       paddingHorizontal: 10,
       paddingVertical: 6,
       borderRadius: 16,
@@ -668,7 +736,7 @@ export default function HabitsScreen() {
       height: 32,
     },
     filterChipActive: {
-      backgroundColor: COLORS.primary + '15',
+      backgroundColor: COLORS.primary + "15",
       borderColor: COLORS.primary,
     },
     filterChipIcon: {
@@ -677,14 +745,14 @@ export default function HabitsScreen() {
     filterChipText: {
       fontSize: 13,
       color: COLORS.text,
-      fontWeight: '500',
+      fontWeight: "500",
     },
     filterChipTextActive: {
       color: COLORS.primary,
-      fontWeight: '600',
+      fontWeight: "600",
     },
     typeFilterContainer: {
-      flexDirection: 'row',
+      flexDirection: "row",
       paddingHorizontal: 20,
       marginBottom: 8,
       gap: 8,
@@ -698,25 +766,25 @@ export default function HabitsScreen() {
       backgroundColor: COLORS.card,
       borderWidth: 1,
       borderColor: COLORS.border,
-      alignItems: 'center',
+      alignItems: "center",
       height: 32,
     },
     typeChipActive: {
-      backgroundColor: COLORS.primary + '15',
+      backgroundColor: COLORS.primary + "15",
       borderColor: COLORS.primary,
     },
     typeChipText: {
       fontSize: 13,
       color: COLORS.text,
-      fontWeight: '500',
+      fontWeight: "500",
     },
     typeChipTextActive: {
       color: COLORS.primary,
-      fontWeight: '600',
+      fontWeight: "600",
     },
     content: {
       paddingHorizontal: 20,
-      height: '100%',
+      height: "100%",
     },
     habitCard: {
       backgroundColor: COLORS.card,
@@ -732,17 +800,17 @@ export default function HabitsScreen() {
       elevation: 2,
     },
     habitHeader: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       marginBottom: 12,
     },
     habitIconContainer: {
       width: 48,
       height: 48,
       borderRadius: 24,
-      backgroundColor: COLORS.primary + '15',
-      alignItems: 'center',
-      justifyContent: 'center',
+      backgroundColor: COLORS.primary + "15",
+      alignItems: "center",
+      justifyContent: "center",
       marginRight: 16,
     },
     habitIcon: {
@@ -753,14 +821,14 @@ export default function HabitsScreen() {
     },
     habitName: {
       fontSize: 18,
-      fontWeight: '600',
+      fontWeight: "600",
       color: COLORS.text,
       marginBottom: 4,
     },
     habitCategory: {
       fontSize: 14,
       color: COLORS.textSecondary,
-      fontWeight: '500',
+      fontWeight: "500",
     },
     habitDescription: {
       fontSize: 14,
@@ -776,16 +844,16 @@ export default function HabitsScreen() {
       borderWidth: 1,
     },
     statusActive: {
-      backgroundColor: COLORS.success + '15',
-      borderColor: COLORS.success + '30',
+      backgroundColor: COLORS.success + "15",
+      borderColor: COLORS.success + "30",
     },
     statusInactive: {
-      backgroundColor: COLORS.textSecondary + '15',
-      borderColor: COLORS.textSecondary + '30',
+      backgroundColor: COLORS.textSecondary + "15",
+      borderColor: COLORS.textSecondary + "30",
     },
     statusText: {
       fontSize: 12,
-      fontWeight: '600',
+      fontWeight: "600",
     },
     statusTextActive: {
       color: COLORS.success,
@@ -794,8 +862,8 @@ export default function HabitsScreen() {
       color: COLORS.textSecondary,
     },
     habitStats: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       marginBottom: 20,
       paddingVertical: 16,
       paddingHorizontal: 16,
@@ -804,18 +872,18 @@ export default function HabitsScreen() {
     },
     statItem: {
       flex: 1,
-      alignItems: 'center',
+      alignItems: "center",
     },
     statNumber: {
       fontSize: 20,
-      fontWeight: '700',
+      fontWeight: "700",
       color: COLORS.primary,
       marginBottom: 4,
     },
     statLabel: {
       fontSize: 12,
       color: COLORS.textSecondary,
-      fontWeight: '500',
+      fontWeight: "500",
     },
     statDivider: {
       width: 1,
@@ -824,7 +892,7 @@ export default function HabitsScreen() {
       marginHorizontal: 16,
     },
     habitActions: {
-      flexDirection: 'row',
+      flexDirection: "row",
       gap: 8,
     },
     actionButton: {
@@ -832,17 +900,17 @@ export default function HabitsScreen() {
       paddingVertical: 12,
       paddingHorizontal: 16,
       borderRadius: 12,
-      alignItems: 'center',
+      alignItems: "center",
       borderWidth: 1,
     },
     primaryAction: {
-      backgroundColor: COLORS.primary + '15',
-      borderColor: COLORS.primary + '30',
+      backgroundColor: COLORS.primary + "15",
+      borderColor: COLORS.primary + "30",
     },
     primaryActionText: {
       color: COLORS.primary,
       fontSize: 14,
-      fontWeight: '600',
+      fontWeight: "600",
     },
     secondaryAction: {
       backgroundColor: COLORS.card,
@@ -851,35 +919,35 @@ export default function HabitsScreen() {
     secondaryActionText: {
       color: COLORS.text,
       fontSize: 14,
-      fontWeight: '600',
+      fontWeight: "600",
     },
     dangerAction: {
-      backgroundColor: COLORS.error + '15',
-      borderColor: COLORS.error + '30',
+      backgroundColor: COLORS.error + "15",
+      borderColor: COLORS.error + "30",
     },
     dangerActionText: {
       color: COLORS.error,
       fontSize: 14,
-      fontWeight: '600',
+      fontWeight: "600",
     },
     emptyState: {
-      alignItems: 'center',
+      alignItems: "center",
       padding: 60,
       flex: 1,
-      justifyContent: 'center',
-      height: '100%',
+      justifyContent: "center",
+      height: "100%",
     },
     emptyStateText: {
       fontSize: 20,
-      fontWeight: '600',
+      fontWeight: "600",
       color: COLORS.text,
       marginBottom: 8,
-      textAlign: 'center',
+      textAlign: "center",
     },
     emptyStateSubtext: {
       fontSize: 16,
       color: COLORS.textSecondary,
-      textAlign: 'center',
+      textAlign: "center",
       lineHeight: 24,
     },
     modalContainer: {
@@ -887,16 +955,16 @@ export default function HabitsScreen() {
       backgroundColor: COLORS.background,
     },
     modalHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
       padding: 20,
       borderBottomWidth: 1,
       borderBottomColor: COLORS.border,
     },
     modalTitle: {
       fontSize: 20,
-      fontWeight: '700',
+      fontWeight: "700",
       color: COLORS.text,
     },
     closeButton: {
@@ -904,13 +972,13 @@ export default function HabitsScreen() {
       height: 32,
       borderRadius: 16,
       backgroundColor: COLORS.card,
-      alignItems: 'center',
-      justifyContent: 'center',
+      alignItems: "center",
+      justifyContent: "center",
     },
     closeButtonText: {
       fontSize: 18,
       color: COLORS.textSecondary,
-      fontWeight: '600',
+      fontWeight: "600",
     },
     modalContent: {
       flex: 1,
@@ -921,7 +989,7 @@ export default function HabitsScreen() {
     },
     inputLabel: {
       fontSize: 14,
-      fontWeight: '600',
+      fontWeight: "600",
       color: COLORS.text,
       marginBottom: 8,
     },
@@ -946,7 +1014,7 @@ export default function HabitsScreen() {
       fontSize: 16,
       color: COLORS.text,
       height: 100,
-      textAlignVertical: 'top',
+      textAlignVertical: "top",
     },
     errorText: {
       color: COLORS.error,
@@ -954,22 +1022,22 @@ export default function HabitsScreen() {
       marginTop: 8,
     },
     categoryGrid: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
+      flexDirection: "row",
+      flexWrap: "wrap",
       gap: 8,
     },
     categoryOption: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       padding: 12,
       borderWidth: 1,
       borderColor: COLORS.border,
       borderRadius: 12,
       backgroundColor: COLORS.card,
-      minWidth: '48%',
+      minWidth: "48%",
     },
     categoryOptionActive: {
-      backgroundColor: COLORS.primary + '15',
+      backgroundColor: COLORS.primary + "15",
       borderColor: COLORS.primary,
     },
     categoryIcon: {
@@ -979,14 +1047,14 @@ export default function HabitsScreen() {
     categoryText: {
       fontSize: 14,
       color: COLORS.text,
-      fontWeight: '500',
+      fontWeight: "500",
     },
     categoryTextActive: {
       color: COLORS.primary,
-      fontWeight: '600',
+      fontWeight: "600",
     },
     typeSelector: {
-      flexDirection: 'row',
+      flexDirection: "row",
       gap: 8,
     },
     typeOption: {
@@ -996,23 +1064,23 @@ export default function HabitsScreen() {
       borderColor: COLORS.border,
       borderRadius: 12,
       backgroundColor: COLORS.card,
-      alignItems: 'center',
+      alignItems: "center",
     },
     typeOptionActive: {
-      backgroundColor: COLORS.primary + '15',
+      backgroundColor: COLORS.primary + "15",
       borderColor: COLORS.primary,
     },
     typeOptionText: {
       fontSize: 14,
       color: COLORS.text,
-      fontWeight: '500',
+      fontWeight: "500",
     },
     typeOptionTextActive: {
       color: COLORS.primary,
-      fontWeight: '600',
+      fontWeight: "600",
     },
     frequencySelector: {
-      flexDirection: 'row',
+      flexDirection: "row",
       gap: 8,
     },
     frequencyOption: {
@@ -1022,35 +1090,35 @@ export default function HabitsScreen() {
       borderColor: COLORS.border,
       borderRadius: 12,
       backgroundColor: COLORS.card,
-      alignItems: 'center',
+      alignItems: "center",
     },
     frequencyOptionActive: {
-      backgroundColor: COLORS.primary + '15',
+      backgroundColor: COLORS.primary + "15",
       borderColor: COLORS.primary,
     },
     frequencyOptionText: {
       fontSize: 14,
       color: COLORS.text,
-      fontWeight: '500',
+      fontWeight: "500",
     },
     frequencyOptionTextActive: {
       color: COLORS.primary,
-      fontWeight: '600',
+      fontWeight: "600",
     },
     createButton: {
       backgroundColor: COLORS.primary,
       padding: 16,
       borderRadius: 12,
-      alignItems: 'center',
+      alignItems: "center",
       marginTop: 20,
     },
     createButtonText: {
-      color: 'white',
+      color: "white",
       fontSize: 16,
-      fontWeight: '600',
+      fontWeight: "600",
     },
     modeToggle: {
-      flexDirection: 'row',
+      flexDirection: "row",
       paddingHorizontal: 20,
       marginVertical: 16,
       gap: 8,
@@ -1063,41 +1131,41 @@ export default function HabitsScreen() {
       backgroundColor: COLORS.card,
       borderWidth: 1,
       borderColor: COLORS.border,
-      alignItems: 'center',
+      alignItems: "center",
     },
     modeOptionActive: {
-      backgroundColor: COLORS.primary + '15',
+      backgroundColor: COLORS.primary + "15",
       borderColor: COLORS.primary,
     },
     modeOptionText: {
       fontSize: 14,
       color: COLORS.text,
-      fontWeight: '500',
+      fontWeight: "500",
     },
     modeOptionTextActive: {
       color: COLORS.primary,
-      fontWeight: '600',
+      fontWeight: "600",
     },
     predefinedGrid: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
+      flexDirection: "row",
+      flexWrap: "wrap",
       gap: 12,
     },
     predefinedCard: {
-      width: '48%',
+      width: "48%",
       backgroundColor: COLORS.card,
       padding: 16,
       borderRadius: 12,
       borderWidth: 1,
       borderColor: COLORS.border,
-      alignItems: 'center',
-      justifyContent: 'space-between',
+      alignItems: "center",
+      justifyContent: "space-between",
       minHeight: 140,
     },
     predefinedContent: {
-      alignItems: 'center',
+      alignItems: "center",
       flex: 1,
-      justifyContent: 'center',
+      justifyContent: "center",
     },
     predefinedIcon: {
       fontSize: 32,
@@ -1105,25 +1173,25 @@ export default function HabitsScreen() {
     },
     predefinedName: {
       fontSize: 14,
-      fontWeight: '600',
+      fontWeight: "600",
       color: COLORS.text,
-      textAlign: 'center',
+      textAlign: "center",
       marginBottom: 4,
     },
     predefinedDescription: {
       fontSize: 12,
       color: COLORS.textSecondary,
-      textAlign: 'center',
+      textAlign: "center",
       marginBottom: 8,
     },
     predefinedMeta: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      width: '100%',
-      marginTop: 'auto',
+      flexDirection: "row",
+      justifyContent: "space-between",
+      width: "100%",
+      marginTop: "auto",
       paddingTop: 8,
       borderTopWidth: 1,
-      borderTopColor: COLORS.border + '30',
+      borderTopColor: COLORS.border + "30",
     },
     predefinedType: {
       fontSize: 10,
@@ -1132,7 +1200,7 @@ export default function HabitsScreen() {
     predefinedFrequency: {
       fontSize: 10,
       color: COLORS.textSecondary,
-      textTransform: 'capitalize',
+      textTransform: "capitalize",
     },
   });
 
@@ -1148,7 +1216,11 @@ export default function HabitsScreen() {
             accessibilityLabel="Open advanced filters"
             accessibilityRole="button"
           >
-            <IconSymbol name="chart.bar.fill" size={20} color={COLORS.primary} />
+            <IconSymbol
+              name="chart.bar.fill"
+              size={20}
+              color={COLORS.primary}
+            />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.addButton}
@@ -1161,7 +1233,7 @@ export default function HabitsScreen() {
           </TouchableOpacity>
         </View>
       </View>
-      
+
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
@@ -1174,27 +1246,29 @@ export default function HabitsScreen() {
           accessibilityRole="search"
         />
       </View>
-      
+
       {renderCategoryFilter()}
       {renderTypeFilter()}
-      
+
       <ScrollView style={styles.content}>
         {sortedHabits.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>No habits found</Text>
             <Text style={styles.emptyStateSubtext}>
-              {searchQuery || selectedCategory !== 'all' || selectedType !== 'all'
-                ? 'Try adjusting your filters or search terms'
-                : 'Add your first habit to get started!'}
+              {searchQuery ||
+              selectedCategory !== "all" ||
+              selectedType !== "all"
+                ? "Try adjusting your filters or search terms"
+                : "Add your first habit to get started!"}
             </Text>
           </View>
         ) : (
           sortedHabits.map((habit, index) => renderHabitCard(habit, index))
         )}
       </ScrollView>
-      
+
       {renderAddHabitModal()}
-      
+
       <AdvancedFilters
         visible={showAdvancedFilters}
         onClose={() => setShowAdvancedFilters(false)}
@@ -1208,12 +1282,12 @@ export default function HabitsScreen() {
 const formatDate = (date: Date): string => {
   const today = new Date();
   const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-  
+
   if (date.toDateString() === today.toDateString()) {
-    return 'Today';
+    return "Today";
   } else if (date.toDateString() === yesterday.toDateString()) {
-    return 'Yesterday';
+    return "Yesterday";
   } else {
     return date.toLocaleDateString();
   }
-}; 
+};

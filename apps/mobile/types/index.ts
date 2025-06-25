@@ -11,8 +11,8 @@ export interface User {
 }
 
 export interface UserPreferences {
-  theme: 'light' | 'dark' | 'auto';
-  language: 'en' | 'fr';
+  theme: "light" | "dark" | "auto";
+  language: "en" | "fr";
   notifications: NotificationSettings;
   primaryColor: string;
 }
@@ -29,7 +29,7 @@ export interface Habit {
   id: string;
   name: string;
   description?: string;
-  type: 'good' | 'bad';
+  type: "good" | "bad";
   category: HabitCategory;
   streak: number;
   startDate: Date;
@@ -38,7 +38,7 @@ export interface Habit {
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
-  targetFrequency: 'daily' | 'weekly' | 'monthly';
+  targetFrequency: "daily" | "weekly" | "monthly";
   currentPeriod: {
     start: Date;
     end: Date;
@@ -46,14 +46,27 @@ export interface Habit {
   };
 }
 
-export type HabitCategory = 'exercise' | 'diet' | 'mindfulness' | 'productivity' | 'health' | 'personal' | 'finance' | 'creative' | 'learning' | 'sleep' | 'relationships' | 'social' | 'other';
+export type HabitCategory =
+  | "exercise"
+  | "diet"
+  | "mindfulness"
+  | "productivity"
+  | "health"
+  | "personal"
+  | "finance"
+  | "creative"
+  | "learning"
+  | "sleep"
+  | "relationships"
+  | "social"
+  | "other";
 
 export interface HabitCheckIn {
   id: string;
   habitId: string;
   date?: Date;
   notes?: string;
-  mood?: 'great' | 'good' | 'okay' | 'bad' | 'terrible';
+  mood?: "great" | "good" | "okay" | "bad" | "terrible";
   completed: boolean;
 }
 
@@ -73,7 +86,7 @@ export interface AppState {
   isLoading: boolean;
   isQuoteLoading: boolean;
   isAuthenticated: boolean;
-  currentTheme: 'light' | 'dark';
+  currentTheme: "light" | "dark";
   dailyQuote: Quote | null;
 }
 
@@ -83,16 +96,16 @@ export interface NotificationData {
   body: string;
   data?: Record<string, any>;
   scheduledDate?: Date;
-  type: 'reminder' | 'milestone' | 'encouragement';
+  type: "reminder" | "milestone" | "encouragement";
 }
 
 export interface PredefinedHabit {
   name: string;
   description: string;
-  type: 'good' | 'bad';
+  type: "good" | "bad";
   category: HabitCategory;
   icon: string;
-  suggestedFrequency: 'daily' | 'weekly' | 'monthly';
+  suggestedFrequency: "daily" | "weekly" | "monthly";
 }
 
 export type EncouragingMessage = {
@@ -104,12 +117,12 @@ export type EncouragingMessage = {
 };
 
 export interface StorageKeys {
-  USER_DATA: '@bad_habits_user';
-  HABITS: '@bad_habits_habits';
-  CHECK_INS: '@bad_habits_checkins';
-  MILESTONES: '@bad_habits_milestones';
-  SETTINGS: '@bad_habits_settings';
-  NOTIFICATIONS: '@bad_habits_notifications';
+  USER_DATA: "@bad_habits_user";
+  HABITS: "@bad_habits_habits";
+  CHECK_INS: "@bad_habits_checkins";
+  MILESTONES: "@bad_habits_milestones";
+  SETTINGS: "@bad_habits_settings";
+  NOTIFICATIONS: "@bad_habits_notifications";
 }
 
 export interface ValidationError {
@@ -150,4 +163,4 @@ export interface Quote {
   author: string;
   category?: string;
   lastUpdated: Date;
-} 
+}

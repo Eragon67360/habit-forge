@@ -1,5 +1,5 @@
-import { APP_CONFIG, ENCOURAGING_MESSAGES } from '@/constants/Data';
-import QuoteService from '@/services/QuoteService';
+import { APP_CONFIG, ENCOURAGING_MESSAGES } from "@/constants/Data";
+import QuoteService from "@/services/QuoteService";
 import {
   AppState,
   Habit,
@@ -9,17 +9,20 @@ import {
   Quote,
   StreakMilestone,
   User,
-  UserPreferences
-} from '@/types';
-import { generateId } from '@/utils/helpers';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware';
+  UserPreferences,
+} from "@/types";
+import { generateId } from "@/utils/helpers";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 // Custom replacer/reviver for JSON serialization to handle Date objects
 const jsonStorage = createJSONStorage(() => AsyncStorage, {
   reviver: (key, value) => {
-    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value)) {
+    if (
+      typeof value === "string" &&
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value)
+    ) {
       return new Date(value);
     }
     return value;
@@ -34,12 +37,16 @@ const customStorage = {
       try {
         const parsed = JSON.parse(value);
         // Reset authentication for users with passwords
-        if (parsed.state && parsed.state.user && parsed.state.user.hasPassword) {
+        if (
+          parsed.state &&
+          parsed.state.user &&
+          parsed.state.user.hasPassword
+        ) {
           parsed.state.isAuthenticated = false;
         }
         return JSON.stringify(parsed);
       } catch (error) {
-        console.error('🏪 [store] Error parsing stored state:', error);
+        console.error("🏪 [store] Error parsing stored state:", error);
         return value;
       }
     }
@@ -54,7 +61,7 @@ const customStorage = {
 };
 
 function isSimpleMessageArray(arr: any[]): arr is string[] {
-  return typeof arr[0] === 'string';
+  return typeof arr[0] === "string";
 }
 
 interface AppStore extends AppState {
@@ -63,60 +70,71 @@ interface AppStore extends AppState {
   updateUser: (updates: Partial<User>) => void;
   logout: () => void;
   setAuthenticated: (isAuthenticated: boolean) => void;
-  
+
   // Habit actions
-  addHabit: (habit: Omit<Habit, 'id' | 'createdAt' | 'updatedAt' | 'streak' | 'currentPeriod'>) => void;
+  addHabit: (
+    habit: Omit<
+      Habit,
+      "id" | "createdAt" | "updatedAt" | "streak" | "currentPeriod"
+    >,
+  ) => void;
   updateHabit: (id: string, updates: Partial<Habit>) => void;
   deleteHabit: (id: string) => void;
   toggleHabitActive: (id: string) => void;
-  
+
   // Check-in actions
-  addCheckIn: (checkIn: Omit<HabitCheckIn, 'id'>) => void;
+  addCheckIn: (checkIn: Omit<HabitCheckIn, "id">) => void;
   updateCheckIn: (id: string, updates: Partial<HabitCheckIn>) => void;
   deleteCheckIn: (id: string) => void;
-  
+
   // Streak and milestone actions
   updateStreak: (habitId: string) => void;
-  addMilestone: (milestone: Omit<StreakMilestone, 'id'>) => void;
-  
+  addMilestone: (milestone: Omit<StreakMilestone, "id">) => void;
+
   // Settings actions
   updatePreferences: (preferences: Partial<UserPreferences>) => void;
   updateNotificationSettings: (settings: Partial<NotificationSettings>) => void;
-  
+
   // UI actions
   setLoading: (isLoading: boolean) => void;
-  setTheme: (theme: 'light' | 'dark') => void;
-  
+  setTheme: (theme: "light" | "dark") => void;
+
   // Quote actions
   fetchDailyQuote: () => Promise<void>;
   setDailyQuote: (quote: Quote | null) => void;
   refreshQuote: () => Promise<void>;
   forceRefreshQuote: () => Promise<void>;
   forceNewQuote: () => Promise<void>;
-  
+
   // Utility actions
   resetApp: () => void;
   resetAppData: () => void;
   getHabitById: (id: string) => Habit | undefined;
   getCheckInsByHabitId: (habitId: string) => HabitCheckIn[];
   getHabitsByCategory: (category: HabitCategory) => Habit[];
-  getHabitsByType: (type: 'good' | 'bad') => Habit[];
+  getHabitsByType: (type: "good" | "bad") => Habit[];
   getActiveHabits: () => Habit[];
   getTodayCheckIns: () => HabitCheckIn[];
-  getEncouragingMessage: (type: 'achievement' | 'setback' | 'daily' | 'milestone', streak?: number) => string;
-  
+  getEncouragingMessage: (
+    type: "achievement" | "setback" | "daily" | "milestone",
+    streak?: number,
+  ) => string;
+
   // Reset authentication for testing (users with passwords should start unauthenticated)
   resetAuthentication: () => void;
-  
+
   // Initialize store - ensure users with passwords start unauthenticated
   initializeStore: () => void;
 }
 
-const initialState: Omit<AppState, 'user' | 'habits' | 'checkIns' | 'milestones'> = {
+const initialState: Omit<
+  AppState,
+  "user" | "habits" | "checkIns" | "milestones"
+> = {
   isLoading: false,
   isQuoteLoading: false,
   isAuthenticated: false,
-  currentTheme: 'light',
+  currentTheme: "light",
   dailyQuote: null,
 };
 
@@ -135,24 +153,25 @@ export const useAppStore = create<AppStore>()(
         const shouldAutoAuthenticate = !user.hasPassword;
         set({ user, isAuthenticated: shouldAutoAuthenticate });
       },
-      
+
       updateUser: (updates) => {
         set((state) => {
           const newUser = state.user ? { ...state.user, ...updates } : null;
           return { user: newUser };
         });
       },
-      
-      logout: () => set({ 
-        user: null, 
-        isAuthenticated: false,
-        habits: [],
-        checkIns: [],
-        milestones: [],
-      }),
-      
+
+      logout: () =>
+        set({
+          user: null,
+          isAuthenticated: false,
+          habits: [],
+          checkIns: [],
+          milestones: [],
+        }),
+
       setAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
-      
+
       // Reset authentication for testing (users with passwords should start unauthenticated)
       resetAuthentication: () => {
         set({ isAuthenticated: false });
@@ -172,33 +191,38 @@ export const useAppStore = create<AppStore>()(
             checkIns: [],
           },
         };
-        
+
         set((state) => ({
           habits: [...state.habits, newHabit],
         }));
       },
 
-      updateHabit: (id, updates) => set((state) => ({
-        habits: state.habits.map((habit) =>
-          habit.id === id
-            ? { ...habit, ...updates, updatedAt: new Date() }
-            : habit
-        ),
-      })),
+      updateHabit: (id, updates) =>
+        set((state) => ({
+          habits: state.habits.map((habit) =>
+            habit.id === id
+              ? { ...habit, ...updates, updatedAt: new Date() }
+              : habit,
+          ),
+        })),
 
-      deleteHabit: (id) => set((state) => ({
-        habits: state.habits.filter((habit) => habit.id !== id),
-        checkIns: state.checkIns.filter((checkIn) => checkIn.habitId !== id),
-        milestones: state.milestones.filter((milestone) => milestone.habitId !== id),
-      })),
+      deleteHabit: (id) =>
+        set((state) => ({
+          habits: state.habits.filter((habit) => habit.id !== id),
+          checkIns: state.checkIns.filter((checkIn) => checkIn.habitId !== id),
+          milestones: state.milestones.filter(
+            (milestone) => milestone.habitId !== id,
+          ),
+        })),
 
-      toggleHabitActive: (id) => set((state) => ({
-        habits: state.habits.map((habit) =>
-          habit.id === id
-            ? { ...habit, isActive: !habit.isActive, updatedAt: new Date() }
-            : habit
-        ),
-      })),
+      toggleHabitActive: (id) =>
+        set((state) => ({
+          habits: state.habits.map((habit) =>
+            habit.id === id
+              ? { ...habit, isActive: !habit.isActive, updatedAt: new Date() }
+              : habit,
+          ),
+        })),
 
       // Check-in actions
       addCheckIn: (checkInData) => {
@@ -206,24 +230,26 @@ export const useAppStore = create<AppStore>()(
           ...checkInData,
           id: generateId(),
         };
-        
+
         set((state) => ({
           checkIns: [...state.checkIns, newCheckIn],
         }));
-        
+
         // Update habit streak and last check-in
         get().updateStreak(checkInData.habitId);
       },
 
-      updateCheckIn: (id, updates) => set((state) => ({
-        checkIns: state.checkIns.map((checkIn) =>
-          checkIn.id === id ? { ...checkIn, ...updates } : checkIn
-        ),
-      })),
+      updateCheckIn: (id, updates) =>
+        set((state) => ({
+          checkIns: state.checkIns.map((checkIn) =>
+            checkIn.id === id ? { ...checkIn, ...updates } : checkIn,
+          ),
+        })),
 
-      deleteCheckIn: (id) => set((state) => ({
-        checkIns: state.checkIns.filter((checkIn) => checkIn.id !== id),
-      })),
+      deleteCheckIn: (id) =>
+        set((state) => ({
+          checkIns: state.checkIns.filter((checkIn) => checkIn.id !== id),
+        })),
 
       // Streak and milestone actions
       updateStreak: (habitId) => {
@@ -240,14 +266,14 @@ export const useAppStore = create<AppStore>()(
           (checkIn) =>
             checkIn.habitId === habitId &&
             checkIn.date?.toDateString() === todayStr &&
-            checkIn.completed
+            checkIn.completed,
         );
 
         const yesterdayCheckIn = state.checkIns.find(
           (checkIn) =>
             checkIn.habitId === habitId &&
             checkIn.date?.toDateString() === yesterdayStr &&
-            checkIn.completed
+            checkIn.completed,
         );
 
         let newStreak = habit.streak;
@@ -266,13 +292,18 @@ export const useAppStore = create<AppStore>()(
         }
 
         // Check for milestone
-        const milestoneReached = (APP_CONFIG.streakMilestones as readonly number[]).includes(newStreak);
+        const milestoneReached = (
+          APP_CONFIG.streakMilestones as readonly number[]
+        ).includes(newStreak);
         const existingMilestone = state.milestones.find(
-          (m) => m.habitId === habitId && m.streakCount === newStreak
+          (m) => m.habitId === habitId && m.streakCount === newStreak,
         );
 
         if (milestoneReached && !existingMilestone) {
-          const encouragingMessage = state.getEncouragingMessage('milestone', newStreak);
+          const encouragingMessage = state.getEncouragingMessage(
+            "milestone",
+            newStreak,
+          );
           state.addMilestone({
             habitId,
             streakCount: newStreak,
@@ -292,45 +323,54 @@ export const useAppStore = create<AppStore>()(
           ...milestoneData,
           id: generateId(),
         };
-        
+
         set((state) => ({
           milestones: [...state.milestones, newMilestone],
         }));
       },
 
       // Settings actions
-      updatePreferences: (preferences) => set((state) => ({
-        user: state.user
-          ? {
-              ...state.user,
-              preferences: { ...state.user.preferences, ...preferences },
-            }
-          : null,
-      })),
+      updatePreferences: (preferences) =>
+        set((state) => ({
+          user: state.user
+            ? {
+                ...state.user,
+                preferences: { ...state.user.preferences, ...preferences },
+              }
+            : null,
+        })),
 
-      updateNotificationSettings: (settings) => set((state) => ({
-        user: state.user
-          ? {
-              ...state.user,
-              preferences: {
-                ...state.user.preferences,
-                notifications: { ...state.user.preferences.notifications, ...settings },
-              },
-            }
-          : null,
-      })),
+      updateNotificationSettings: (settings) =>
+        set((state) => ({
+          user: state.user
+            ? {
+                ...state.user,
+                preferences: {
+                  ...state.user.preferences,
+                  notifications: {
+                    ...state.user.preferences.notifications,
+                    ...settings,
+                  },
+                },
+              }
+            : null,
+        })),
 
       // UI actions
       setLoading: (isLoading) => set({ isLoading }),
-      setTheme: (theme) => set((state) => ({
-        currentTheme: theme,
-        user: state.user
-          ? {
-              ...state.user,
-              preferences: { ...state.user.preferences, preferredTheme: theme },
-            }
-          : null,
-      })),
+      setTheme: (theme) =>
+        set((state) => ({
+          currentTheme: theme,
+          user: state.user
+            ? {
+                ...state.user,
+                preferences: {
+                  ...state.user.preferences,
+                  preferredTheme: theme,
+                },
+              }
+            : null,
+        })),
 
       // Quote actions
       fetchDailyQuote: async () => {
@@ -339,7 +379,7 @@ export const useAppStore = create<AppStore>()(
           set({ dailyQuote: quote });
         } catch (error) {
           // Keep existing quote if fetch fails
-          console.warn('Failed to fetch daily quote:', error);
+          console.warn("Failed to fetch daily quote:", error);
         }
       },
 
@@ -351,7 +391,7 @@ export const useAppStore = create<AppStore>()(
           const quote = await quoteService.refreshQuote();
           set({ dailyQuote: quote });
         } catch (error) {
-          console.error('Error refreshing quote:', error);
+          console.error("Error refreshing quote:", error);
           // Keep existing quote if refresh fails
         }
       },
@@ -363,7 +403,7 @@ export const useAppStore = create<AppStore>()(
           set({ dailyQuote: quote, isQuoteLoading: false });
         } catch (error) {
           // Keep existing quote if refresh fails
-          console.warn('Failed to refresh quote:', error);
+          console.warn("Failed to refresh quote:", error);
           set({ isQuoteLoading: false });
         }
       },
@@ -376,7 +416,7 @@ export const useAppStore = create<AppStore>()(
           set({ dailyQuote: quote, isQuoteLoading: false });
         } catch (error) {
           // Keep existing quote if fetch fails
-          console.warn('Failed to force new quote:', error);
+          console.warn("Failed to force new quote:", error);
           set({ isQuoteLoading: false });
         }
       },
@@ -392,52 +432,54 @@ export const useAppStore = create<AppStore>()(
           dailyQuote: null,
           isLoading: false,
           isAuthenticated: false,
-          currentTheme: 'light',
+          currentTheme: "light",
         });
       },
 
-      resetAppData: () => set({
-        user: null,
-        habits: [],
-        checkIns: [],
-        milestones: [],
-        dailyQuote: null,
-        isLoading: false,
-        isAuthenticated: false,
-        currentTheme: 'light',
-      }),
+      resetAppData: () =>
+        set({
+          user: null,
+          habits: [],
+          checkIns: [],
+          milestones: [],
+          dailyQuote: null,
+          isLoading: false,
+          isAuthenticated: false,
+          currentTheme: "light",
+        }),
 
       getHabitById: (id) => get().habits.find((habit) => habit.id === id),
-      
+
       getCheckInsByHabitId: (habitId) =>
         get().checkIns.filter((checkIn) => checkIn.habitId === habitId),
-      
+
       getHabitsByCategory: (category) =>
         get().habits.filter((habit) => habit.category === category),
-      
+
       getHabitsByType: (type) =>
         get().habits.filter((habit) => habit.type === type),
-      
+
       getActiveHabits: () => get().habits.filter((habit) => habit.isActive),
-      
+
       getTodayCheckIns: () => {
         const todayStr = new Date().toDateString();
         return get().checkIns.filter(
-          (checkIn) => checkIn.date?.toDateString() === todayStr
+          (checkIn) => checkIn.date?.toDateString() === todayStr,
         );
       },
 
       getEncouragingMessage: (type, streak) => {
         const messages = ENCOURAGING_MESSAGES[type];
-        if (!messages || messages.length === 0) return '';
-        
-        const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+        if (!messages || messages.length === 0) return "";
+
+        const randomMessage =
+          messages[Math.floor(Math.random() * messages.length)];
         let messageText = randomMessage.message;
 
         if (streak) {
-          messageText = messageText.replace('{streak}', streak.toString());
+          messageText = messageText.replace("{streak}", streak.toString());
         }
-        
+
         return messageText;
       },
 
@@ -452,6 +494,6 @@ export const useAppStore = create<AppStore>()(
     {
       name: APP_CONFIG.storageKey,
       storage: createJSONStorage(() => customStorage),
-    }
-  )
-); 
+    },
+  ),
+);
