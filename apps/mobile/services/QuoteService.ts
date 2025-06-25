@@ -1,9 +1,9 @@
-import { Quote } from '@/types';
+import { Quote } from "@/types";
 
 // You can replace this with your preferred AI API
 // Options: OpenAI, Anthropic Claude, Google Gemini, etc.
-const AI_API_ENDPOINT = 'https://api.openai.com/v1/responses';
-const AI_API_KEY = process.env.EXPO_PUBLIC_OPENAI_API_KEY || '';
+const AI_API_ENDPOINT = "https://api.openai.com/v1/responses";
+const AI_API_KEY = process.env.EXPO_PUBLIC_OPENAI_API_KEY || "";
 
 interface AIQuoteResponse {
   text: string;
@@ -31,32 +31,34 @@ class QuoteService {
 
   private shouldFetchNewQuote(): boolean {
     if (!this.lastFetchDate) return true;
-    
+
     const lastFetch = new Date(this.lastFetchDate);
     const today = new Date();
-    
+
     return !this.isSameDay(lastFetch, today);
   }
 
   private checkRateLimit(): boolean {
     const now = Date.now();
     const timeSinceLastRequest = now - this.lastRequestTime;
-    
+
     if (timeSinceLastRequest < this.MIN_REQUEST_INTERVAL) {
       return false;
     }
-    
+
     this.lastRequestTime = now;
     return true;
   }
 
   private async fetchQuoteFromAI(): Promise<AIQuoteResponse> {
     if (!AI_API_KEY) {
-      throw new Error('AI API key not configured');
+      throw new Error("AI API key not configured");
     }
 
     if (!this.checkRateLimit()) {
-      throw new Error('Rate limit: Please wait before requesting another quote');
+      throw new Error(
+        "Rate limit: Please wait before requesting another quote",
+      );
     }
 
     const prompt = `Generate an inspirational quote about personal growth, habits, motivation, or self-improvement. 
@@ -73,89 +75,111 @@ class QuoteService {
 
     try {
       const response = await fetch(AI_API_ENDPOINT, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${AI_API_KEY}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${AI_API_KEY}`,
         },
         body: JSON.stringify({
-          model: 'gpt-4o-2024-08-06',
+          model: "gpt-4o-2024-08-06",
           input: [
             {
-              role: 'system',
-              content: 'You are an AI that generates inspirational quotes. Always respond with structured JSON data.',
+              role: "system",
+              content:
+                "You are an AI that generates inspirational quotes. Always respond with structured JSON data.",
             },
             {
-              role: 'user',
+              role: "user",
               content: prompt,
             },
           ],
           text: {
             format: {
-              type: 'json_schema',
-              name: 'inspirational_quote',
+              type: "json_schema",
+              name: "inspirational_quote",
               schema: {
-                type: 'object',
+                type: "object",
                 properties: {
                   text: {
-                    type: 'string',
-                    description: 'The inspirational quote text'
+                    type: "string",
+                    description: "The inspirational quote text",
                   },
                   author: {
-                    type: 'string',
-                    description: 'The real author of the quote'
+                    type: "string",
+                    description: "The real author of the quote",
                   },
                   category: {
-                    type: 'string',
-                    description: 'The category of the quote',
-                    enum: ['motivation', 'habits', 'growth', 'success', 'mindfulness', 'productivity']
-                  }
+                    type: "string",
+                    description: "The category of the quote",
+                    enum: [
+                      "motivation",
+                      "habits",
+                      "growth",
+                      "success",
+                      "mindfulness",
+                      "productivity",
+                    ],
+                  },
                 },
-                required: ['text', 'author', 'category'],
-                additionalProperties: false
+                required: ["text", "author", "category"],
+                additionalProperties: false,
               },
-              strict: true
-            }
-          }
+              strict: true,
+            },
+          },
         }),
       });
 
       if (response.status === 429) {
-        throw new Error('Rate limit exceeded. Please wait a moment before trying again.');
+        throw new Error(
+          "Rate limit exceeded. Please wait a moment before trying again.",
+        );
       }
 
       if (!response.ok) {
-        throw new Error(`AI API error: ${response.status} - ${response.statusText}`);
+        throw new Error(
+          `AI API error: ${response.status} - ${response.statusText}`,
+        );
       }
 
       const data = await response.json();
-      
+
       // Check for refusal
-      if (data.output && data.output[0] && data.output[0].content && data.output[0].content[0]) {
+      if (
+        data.output &&
+        data.output[0] &&
+        data.output[0].content &&
+        data.output[0].content[0]
+      ) {
         const content = data.output[0].content[0];
-        if (content.type === 'refusal') {
-          throw new Error('Model refused to generate quote. Please try again.');
+        if (content.type === "refusal") {
+          throw new Error("Model refused to generate quote. Please try again.");
         }
       }
 
       // Extract the structured output from the correct location
-      if (!data.output || !data.output[0] || !data.output[0].content || !data.output[0].content[0]) {
-        throw new Error('Invalid response structure from AI API');
+      if (
+        !data.output ||
+        !data.output[0] ||
+        !data.output[0].content ||
+        !data.output[0].content[0]
+      ) {
+        throw new Error("Invalid response structure from AI API");
       }
 
       const content = data.output[0].content[0];
-      if (content.type !== 'output_text') {
-        throw new Error('Unexpected response type from AI API');
+      if (content.type !== "output_text") {
+        throw new Error("Unexpected response type from AI API");
       }
 
       const outputText = content.text;
       if (!outputText) {
-        throw new Error('Invalid response from AI API');
+        throw new Error("Invalid response from AI API");
       }
 
       // Parse the JSON response
       const quoteData = JSON.parse(outputText);
-      
+
       return {
         text: quoteData.text,
         author: quoteData.author,
@@ -171,32 +195,33 @@ class QuoteService {
       {
         text: "The only way to do great work is to love what you do.",
         author: "Steve Jobs",
-        category: "motivation"
+        category: "motivation",
       },
       {
         text: "Success is not final, failure is not fatal: it is the courage to continue that counts.",
         author: "Winston Churchill",
-        category: "success"
+        category: "success",
       },
       {
         text: "The journey of a thousand miles begins with one step.",
         author: "Lao Tzu",
-        category: "growth"
+        category: "growth",
       },
       {
         text: "We are what we repeatedly do. Excellence, then, is not an act, but a habit.",
         author: "Aristotle",
-        category: "habits"
+        category: "habits",
       },
       {
         text: "The future belongs to those who believe in the beauty of their dreams.",
         author: "Eleanor Roosevelt",
-        category: "motivation"
-      }
+        category: "motivation",
+      },
     ];
 
-    const randomQuote = fallbackQuotes[Math.floor(Math.random() * fallbackQuotes.length)];
-    
+    const randomQuote =
+      fallbackQuotes[Math.floor(Math.random() * fallbackQuotes.length)];
+
     return {
       id: `fallback-${Date.now()}`,
       text: randomQuote.text,
@@ -208,7 +233,7 @@ class QuoteService {
 
   async getDailyQuote(): Promise<Quote> {
     const today = new Date().toDateString();
-    
+
     // Check if we already have a quote for today
     if (this.cache.has(today) && !this.shouldFetchNewQuote()) {
       return this.cache.get(today)!;
@@ -217,7 +242,7 @@ class QuoteService {
     try {
       // Try to fetch from AI API
       const aiQuote = await this.fetchQuoteFromAI();
-      
+
       const quote: Quote = {
         id: `ai-${Date.now()}`,
         text: aiQuote.text,
@@ -229,16 +254,16 @@ class QuoteService {
       // Cache the quote for today
       this.cache.set(today, quote);
       this.lastFetchDate = new Date().toISOString();
-      
+
       return quote;
     } catch (error) {
-      console.warn('Failed to fetch AI quote, using fallback:', error);
-      
+      console.warn("Failed to fetch AI quote, using fallback:", error);
+
       // Use fallback quote if AI API fails
       const fallbackQuote = this.getFallbackQuote();
       this.cache.set(today, fallbackQuote);
       this.lastFetchDate = new Date().toISOString();
-      
+
       return fallbackQuote;
     }
   }
@@ -249,11 +274,11 @@ class QuoteService {
     this.lastFetchDate = null;
     const today = new Date().toDateString();
     this.cache.delete(today); // Remove today's cached quote
-    
+
     try {
       // Try to fetch from AI API
       const aiQuote = await this.fetchQuoteFromAI();
-      
+
       const quote: Quote = {
         id: `ai-${Date.now()}`,
         text: aiQuote.text,
@@ -265,16 +290,16 @@ class QuoteService {
       // Cache the new quote for today
       this.cache.set(today, quote);
       this.lastFetchDate = new Date().toISOString();
-      
+
       return quote;
     } catch (error) {
-      console.warn('Failed to fetch AI quote, using fallback:', error);
-      
+      console.warn("Failed to fetch AI quote, using fallback:", error);
+
       // Use fallback quote if AI API fails
       const fallbackQuote = this.getFallbackQuote();
       this.cache.set(today, fallbackQuote);
       this.lastFetchDate = new Date().toISOString();
-      
+
       return fallbackQuote;
     }
   }
@@ -286,4 +311,4 @@ class QuoteService {
   }
 }
 
-export default QuoteService; 
+export default QuoteService;

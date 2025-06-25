@@ -228,8 +228,8 @@ export default function Home() {
         className="relative flex flex-col justify-center min-h-screen pt-32 pb-16 z-10"
         aria-labelledby="hero-heading"
       >
-        <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-16 px-4">
-          <div className="flex-1 space-y-8 max-w-2xl">
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16 px-4">
+          <div className="flex-1 space-y-8 max-w-7xl">
             <motion.h1
               id="hero-heading"
               className="text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight tracking-tight bg-gradient-to-br from-fuchsia-600 via-cyan-500 to-purple-600 bg-clip-text text-transparent drop-shadow-2xl"
@@ -238,7 +238,20 @@ export default function Home() {
               transition={{ duration: 1.2, delay: 0.2 }}
             >
               Break{" "}
-              <span className="inline-block animate-pulse">Bad Habits</span>{" "}
+              <motion.span
+                className="inline-block"
+                animate={{
+                  scale: [1, 1.05, 1],
+                  opacity: [1, 0.8, 1],
+                }}
+                transition={{
+                  repeat: Infinity,
+                  duration: 2,
+                  ease: "easeInOut",
+                }}
+              >
+                Bad Habits
+              </motion.span>{" "}
               Forever
             </motion.h1>
             <motion.p

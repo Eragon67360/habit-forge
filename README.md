@@ -5,6 +5,7 @@ A comprehensive habit tracking application designed to help users build positive
 ## 🎯 Project Goal
 
 HabitForge is a personal development app that empowers users to:
+
 - **Track daily habits** with streak counting and progress visualization
 - **Build good habits** like exercise, reading, meditation, and healthy eating
 - **Break bad habits** like procrastination, excessive screen time, and unhealthy snacking
@@ -14,6 +15,7 @@ HabitForge is a personal development app that empowers users to:
 ## 📱 Current Status
 
 **Mobile App (Ready)** ✅
+
 - Fully functional React Native app built with Expo
 - Complete habit tracking system with check-ins and streaks
 - Beautiful, modern UI with dark/light theme support
@@ -23,6 +25,7 @@ HabitForge is a personal development app that empowers users to:
 - Local data persistence
 
 **Web App (In Development)** 🚧
+
 - Basic Next.js setup with react-native-web
 - Currently just a placeholder page
 - Planned to share the same habit tracking functionality
@@ -32,21 +35,25 @@ HabitForge is a personal development app that empowers users to:
 This is a monorepo built with Turborepo containing:
 
 ### Apps
+
 - `bad-habits` (mobile): Complete React Native/Expo app
 - `web` (web): Next.js app with react-native-web (placeholder)
 
 ### Packages
+
 - `@repo/ui`: Shared UI components
 - `@repo/typescript-config`: Shared TypeScript configurations
 
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - Node.js 18+
 - npm or yarn
 - Expo CLI (for mobile development)
 
 ### Installation
+
 ```bash
 # Clone the repository
 git clone <repository-url>
@@ -61,6 +68,7 @@ npx expo start
 ```
 
 ### Mobile App Features
+
 - **Habit Management**: Create, edit, and delete habits
 - **Category Filtering**: Organize habits by exercise, health, productivity, etc.
 - **Streak Tracking**: Visual progress indicators and milestone celebrations

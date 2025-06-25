@@ -1,7 +1,7 @@
-import { getThemeColors } from '@/constants/Data';
-import { useAppStore } from '@/store/useAppStore';
-import React, { useEffect, useRef } from 'react';
-import { Animated, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { getThemeColors } from "@/constants/Data";
+import { useAppStore } from "@/store/useAppStore";
+import React, { useEffect, useRef } from "react";
+import { Animated, StyleSheet, TouchableOpacity, View } from "react-native";
 
 interface AnimatedCardProps {
   children: React.ReactNode;
@@ -17,8 +17,8 @@ export const AnimatedCard: React.FC<AnimatedCardProps> = ({
   style,
 }) => {
   const { currentTheme } = useAppStore();
-  const COLORS = getThemeColors(currentTheme === 'dark');
-  
+  const COLORS = getThemeColors(currentTheme === "dark");
+
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
   const pressAnim = useRef(new Animated.Value(1)).current;
@@ -58,9 +58,7 @@ export const AnimatedCard: React.FC<AnimatedCardProps> = ({
   };
 
   const animatedStyle = {
-    transform: [
-      { scale: Animated.multiply(scaleAnim, pressAnim) },
-    ],
+    transform: [{ scale: Animated.multiply(scaleAnim, pressAnim) }],
     opacity: opacityAnim,
   };
 
@@ -90,10 +88,10 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 16,
     borderWidth: 1,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 3,
   },
-}); 
+});

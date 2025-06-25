@@ -16,18 +16,20 @@ The app now includes AI-powered daily inspirational quotes that update once per 
 
 ### Setup Instructions
 
-1. **Get an AI API Key**: 
+1. **Get an AI API Key**:
+
    - Sign up for [OpenAI](https://platform.openai.com/) (recommended)
    - Or use [Anthropic Claude](https://console.anthropic.com/)
    - Or use [Google Gemini](https://makersuite.google.com/app/apikey)
 
 2. **Configure Environment Variables**:
    Create a `.env` file in the root directory:
+
    ```
    EXPO_PUBLIC_OPENAI_API_KEY=your_openai_api_key_here
    ```
 
-3. **Alternative APIs**: 
+3. **Alternative APIs**:
    If you prefer a different AI service, edit `services/QuoteService.ts` and update the `AI_API_ENDPOINT` and API call format.
 
 ### How It Works

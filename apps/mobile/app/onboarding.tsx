@@ -1,9 +1,14 @@
-import { APP_CONFIG, getThemeColors } from '@/constants/Data';
-import { useAppStore } from '@/store/useAppStore';
-import { User, UserPreferences } from '@/types';
-import { generateId, hashPassword, validatePassword, validateUsername } from '@/utils/helpers';
-import { router } from 'expo-router';
-import React, { useState } from 'react';
+import { APP_CONFIG, getThemeColors } from "@/constants/Data";
+import { useAppStore } from "@/store/useAppStore";
+import { User, UserPreferences } from "@/types";
+import {
+  generateId,
+  hashPassword,
+  validatePassword,
+  validateUsername,
+} from "@/utils/helpers";
+import { router } from "expo-router";
+import React, { useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -14,56 +19,56 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function OnboardingScreen() {
   const [step, setStep] = useState(1);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [hasPassword, setHasPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  
+
   const { setUser, setAuthenticated, currentTheme } = useAppStore();
 
   // Get theme-aware colors
-  const COLORS = getThemeColors(currentTheme === 'dark');
+  const COLORS = getThemeColors(currentTheme === "dark");
 
   const validateStep1 = (): boolean => {
     const newErrors: Record<string, string> = {};
-    
+
     if (!username.trim()) {
-      newErrors.username = 'Username is required';
+      newErrors.username = "Username is required";
     } else {
       const validationErrors = validateUsername(username);
       if (validationErrors.length > 0) {
         newErrors.username = validationErrors[0].message;
       }
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const validateStep2 = (): boolean => {
     const newErrors: Record<string, string> = {};
-    
+
     if (hasPassword) {
       if (!password) {
-        newErrors.password = 'Password is required';
+        newErrors.password = "Password is required";
       } else {
         const validationErrors = validatePassword(password);
         if (validationErrors.length > 0) {
           newErrors.password = validationErrors[0].message;
         }
       }
-      
+
       if (password !== confirmPassword) {
-        newErrors.confirmPassword = 'Passwords do not match';
+        newErrors.confirmPassword = "Passwords do not match";
       }
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -90,8 +95,8 @@ export default function OnboardingScreen() {
   const createUser = async () => {
     try {
       const defaultPreferences: UserPreferences = {
-        theme: 'auto',
-        language: 'en',
+        theme: "auto",
+        language: "en",
         notifications: {
           enabled: true,
           dailyReminders: true,
@@ -103,7 +108,7 @@ export default function OnboardingScreen() {
       };
 
       const userId = generateId();
-      
+
       let passwordHash: string | undefined;
       if (hasPassword) {
         passwordHash = await hashPassword(password);
@@ -120,18 +125,18 @@ export default function OnboardingScreen() {
       };
 
       setUser(user);
-      
+
       // Only auto-authenticate users without password protection
       if (!hasPassword) {
         setAuthenticated(true);
         // Navigate to main app
-        router.replace('/(tabs)' as any);
+        router.replace("/(tabs)" as any);
       } else {
         // Let AuthWrapper handle routing to auth screen
-        router.replace('/auth');
+        router.replace("/auth");
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to create user. Please try again.');
+      Alert.alert("Error", "Failed to create user. Please try again.");
     }
   };
 
@@ -144,7 +149,7 @@ export default function OnboardingScreen() {
           Let&apos;s forge your path to better habits and personal growth
         </Text>
       </View>
-      
+
       <View style={styles.formSection}>
         <View style={styles.inputContainer}>
           <Text style={styles.label}>CHOOSE A FORGE NAME</Text>
@@ -157,10 +162,12 @@ export default function OnboardingScreen() {
             autoCorrect={false}
             maxLength={APP_CONFIG.usernameMaxLength}
           />
-          {errors.username && <Text style={styles.errorText}>{errors.username}</Text>}
+          {errors.username && (
+            <Text style={styles.errorText}>{errors.username}</Text>
+          )}
         </View>
       </View>
-      
+
       <View style={styles.buttonSection}>
         <TouchableOpacity style={styles.primaryButton} onPress={handleNext}>
           <Text style={styles.primaryButtonText}>CONTINUE</Text>
@@ -177,19 +184,27 @@ export default function OnboardingScreen() {
           Optionally add a 6-digit password to protect your habit forge
         </Text>
       </View>
-      
+
       <View style={styles.formSection}>
         <View style={styles.passwordToggle}>
           <TouchableOpacity
-            style={[styles.toggleButton, hasPassword && styles.toggleButtonActive]}
+            style={[
+              styles.toggleButton,
+              hasPassword && styles.toggleButtonActive,
+            ]}
             onPress={() => setHasPassword(!hasPassword)}
           >
-            <Text style={[styles.toggleText, hasPassword && styles.toggleTextActive]}>
-              {hasPassword ? '✓' : ''} PROTECT MY FORGE
+            <Text
+              style={[
+                styles.toggleText,
+                hasPassword && styles.toggleTextActive,
+              ]}
+            >
+              {hasPassword ? "✓" : ""} PROTECT MY FORGE
             </Text>
           </TouchableOpacity>
         </View>
-        
+
         {hasPassword && (
           <>
             <View style={styles.inputContainer}>
@@ -203,13 +218,18 @@ export default function OnboardingScreen() {
                 maxLength={6}
                 secureTextEntry
               />
-              {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
+              {errors.password && (
+                <Text style={styles.errorText}>{errors.password}</Text>
+              )}
             </View>
-            
+
             <View style={styles.inputContainer}>
               <Text style={styles.label}>CONFIRM FORGE KEY</Text>
               <TextInput
-                style={[styles.input, errors.confirmPassword && styles.inputError]}
+                style={[
+                  styles.input,
+                  errors.confirmPassword && styles.inputError,
+                ]}
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 placeholder="Confirm 6 digits"
@@ -217,12 +237,14 @@ export default function OnboardingScreen() {
                 maxLength={6}
                 secureTextEntry
               />
-              {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
+              {errors.confirmPassword && (
+                <Text style={styles.errorText}>{errors.confirmPassword}</Text>
+              )}
             </View>
           </>
         )}
       </View>
-      
+
       <View style={styles.buttonSection}>
         <View style={styles.buttonRow}>
           <TouchableOpacity style={styles.secondaryButton} onPress={handleBack}>
@@ -259,49 +281,49 @@ export default function OnboardingScreen() {
       marginBottom: 10,
     },
     progressFill: {
-      height: '100%',
+      height: "100%",
       backgroundColor: COLORS.primary,
       borderRadius: 2,
     },
     stepIndicator: {
       fontSize: 14,
       color: COLORS.textSecondary,
-      textAlign: 'center',
-      fontWeight: '600',
+      textAlign: "center",
+      fontWeight: "600",
     },
     stepContainer: {
       flex: 1,
-      justifyContent: 'space-between',
+      justifyContent: "space-between",
     },
     headerSection: {
-      alignItems: 'center',
+      alignItems: "center",
       marginBottom: 40,
     },
     title: {
       fontSize: 28,
-      fontWeight: 'bold',
+      fontWeight: "bold",
       color: COLORS.text,
-      textAlign: 'center',
+      textAlign: "center",
       marginBottom: 16,
       letterSpacing: 1,
     },
     subtitle: {
       fontSize: 16,
       color: COLORS.textSecondary,
-      textAlign: 'center',
+      textAlign: "center",
       lineHeight: 24,
       maxWidth: 300,
     },
     formSection: {
       flex: 1,
-      justifyContent: 'center',
+      justifyContent: "center",
     },
     inputContainer: {
       marginBottom: 24,
     },
     label: {
       fontSize: 14,
-      fontWeight: 'bold',
+      fontWeight: "bold",
       color: COLORS.text,
       marginBottom: 12,
       letterSpacing: 0.5,
@@ -314,7 +336,7 @@ export default function OnboardingScreen() {
       fontSize: 16,
       backgroundColor: COLORS.card,
       color: COLORS.text,
-      textAlign: 'center',
+      textAlign: "center",
     },
     inputError: {
       borderColor: COLORS.error,
@@ -323,8 +345,8 @@ export default function OnboardingScreen() {
       color: COLORS.error,
       fontSize: 14,
       marginTop: 8,
-      textAlign: 'center',
-      fontWeight: '600',
+      textAlign: "center",
+      fontWeight: "600",
     },
     passwordToggle: {
       marginBottom: 24,
@@ -335,17 +357,17 @@ export default function OnboardingScreen() {
       borderColor: COLORS.border,
       borderRadius: 25,
       backgroundColor: COLORS.card,
-      alignItems: 'center',
+      alignItems: "center",
     },
     toggleButtonActive: {
       borderColor: COLORS.primary,
-      backgroundColor: COLORS.primary + '20',
+      backgroundColor: COLORS.primary + "20",
     },
     toggleText: {
       fontSize: 16,
       color: COLORS.text,
-      textAlign: 'center',
-      fontWeight: 'bold',
+      textAlign: "center",
+      fontWeight: "bold",
       letterSpacing: 0.5,
     },
     toggleTextActive: {
@@ -355,7 +377,7 @@ export default function OnboardingScreen() {
       marginTop: 40,
     },
     buttonRow: {
-      flexDirection: 'row',
+      flexDirection: "row",
       gap: 16,
     },
     primaryButton: {
@@ -363,7 +385,7 @@ export default function OnboardingScreen() {
       backgroundColor: COLORS.primary,
       padding: 20,
       borderRadius: 25,
-      alignItems: 'center',
+      alignItems: "center",
       shadowColor: COLORS.primary,
       shadowOffset: {
         width: 0,
@@ -374,9 +396,9 @@ export default function OnboardingScreen() {
       elevation: 8,
     },
     primaryButtonText: {
-      color: 'white',
+      color: "white",
       fontSize: 16,
-      fontWeight: 'bold',
+      fontWeight: "bold",
       letterSpacing: 1,
     },
     secondaryButton: {
@@ -384,14 +406,14 @@ export default function OnboardingScreen() {
       backgroundColor: COLORS.secondary,
       padding: 20,
       borderRadius: 25,
-      alignItems: 'center',
+      alignItems: "center",
       borderWidth: 2,
       borderColor: COLORS.border,
     },
     secondaryButtonText: {
       color: COLORS.text,
       fontSize: 16,
-      fontWeight: 'bold',
+      fontWeight: "bold",
       letterSpacing: 1,
     },
   });
@@ -399,20 +421,22 @@ export default function OnboardingScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardView}
       >
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <View style={styles.header}>
             <View style={styles.progressBar}>
-              <View style={[styles.progressFill, { width: `${(step / 2) * 100}%` }]} />
+              <View
+                style={[styles.progressFill, { width: `${(step / 2) * 100}%` }]}
+              />
             </View>
             <Text style={styles.stepIndicator}>STEP {step} OF 2</Text>
           </View>
-          
+
           {step === 1 ? renderStep1() : renderStep2()}
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
-} 
+}

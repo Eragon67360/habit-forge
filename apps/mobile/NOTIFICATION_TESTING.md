@@ -31,7 +31,7 @@ import { notificationService } from "@/services/NotificationService";
 await notificationService.sendImmediateNotification(
   "Test Title",
   "Test message body",
-  { type: "test" }
+  { type: "test" },
 );
 
 // Test daily reminder

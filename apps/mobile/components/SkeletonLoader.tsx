@@ -1,7 +1,7 @@
-import { getThemeColors } from '@/constants/Data';
-import { useAppStore } from '@/store/useAppStore';
-import React, { useEffect, useRef } from 'react';
-import { Animated, StyleSheet, View } from 'react-native';
+import { getThemeColors } from "@/constants/Data";
+import { useAppStore } from "@/store/useAppStore";
+import React, { useEffect, useRef } from "react";
+import { Animated, StyleSheet, View } from "react-native";
 
 interface SkeletonLoaderProps {
   width?: number | string;
@@ -11,13 +11,13 @@ interface SkeletonLoaderProps {
 }
 
 export const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
-  width = '100%',
+  width = "100%",
   height = 20,
   borderRadius = 4,
   style,
 }) => {
   const { currentTheme } = useAppStore();
-  const COLORS = getThemeColors(currentTheme === 'dark');
+  const COLORS = getThemeColors(currentTheme === "dark");
   const animatedValue = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -33,7 +33,7 @@ export const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
           duration: 1000,
           useNativeDriver: false,
         }),
-      ])
+      ]),
     );
     animation.start();
 
@@ -65,7 +65,7 @@ export const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
 // Predefined skeleton components for common use cases
 export const HabitCardSkeleton: React.FC = () => {
   const { currentTheme } = useAppStore();
-  const COLORS = getThemeColors(currentTheme === 'dark');
+  const COLORS = getThemeColors(currentTheme === "dark");
 
   return (
     <View style={[styles.habitCardSkeleton, { backgroundColor: COLORS.card }]}>
@@ -94,11 +94,16 @@ export const HabitCardSkeleton: React.FC = () => {
 
 export const QuoteCardSkeleton: React.FC = () => {
   const { currentTheme } = useAppStore();
-  const COLORS = getThemeColors(currentTheme === 'dark');
+  const COLORS = getThemeColors(currentTheme === "dark");
 
   return (
     <View style={[styles.quoteCardSkeleton, { backgroundColor: COLORS.card }]}>
-      <SkeletonLoader width={24} height={24} borderRadius={12} style={styles.marginBottom} />
+      <SkeletonLoader
+        width={24}
+        height={24}
+        borderRadius={12}
+        style={styles.marginBottom}
+      />
       <SkeletonLoader width="100%" height={18} style={styles.marginBottom} />
       <SkeletonLoader width="100%" height={18} style={styles.marginBottom} />
       <SkeletonLoader width="60%" height={14} />
@@ -108,7 +113,7 @@ export const QuoteCardSkeleton: React.FC = () => {
 
 const styles = StyleSheet.create({
   skeleton: {
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   habitCardSkeleton: {
     padding: 16,
@@ -117,7 +122,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   habitCardHeader: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 12,
   },
   habitCardIcon: {
@@ -127,18 +132,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   habitCardStats: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 16,
   },
   statItem: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   quoteCardSkeleton: {
     padding: 24,
     borderRadius: 20,
-    alignItems: 'center',
+    alignItems: "center",
   },
   marginBottom: {
     marginBottom: 8,
   },
-}); 
+});
