@@ -1,0 +1,108 @@
+<!doctype html>
+<!-- HabitForge hover loop (8s, 1280x800). Real captures of habit-forge-web.vercel.app; see capture.mjs. -->
+<html>
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="base.css" />
+<style>
+  body, .stage { background: #f5f0ff; }
+  .shot.css { width: 1280px; height: 800px; } /* 1x in-between states */
+  /* The site's own gradient (fuchsia-600 -> cyan-400) with its purple logo colour as the leading edge. */
+  .wipe { position: absolute; top: 0; bottom: 0; width: 1500px; left: -1500px; z-index: 30;
+    background: linear-gradient(90deg, #c026d3, #a855f7 55%, #22d3ee); box-shadow: 18px 0 0 #6d4fe0; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="layer" id="home"></div>
+  <div class="layer" id="features"></div>
+  <div class="layer" id="iface"></div>
+  <div class="layer" id="homeEnd"><img class="shot" id="homeEndImg" src="captures/home.png" /></div>
+  <div class="wipe" id="wipe"></div>
+  <div class="hv-cursor" id="cursor"></div>
+</div>
+<script src="engine.js"></script>
+<script src="captures/layout.js"></script>
+<script>
+  const { tw, seg, keys, ease, clamp } = HV;
+  const L = window.LAYOUT;
+  const $ = (id) => document.getElementById(id);
+  const pad = (i) => String(i).padStart(2, "0");
+
+  /** Stack real captures in `layer`: [base, ...frames, end], switched by opacity. */
+  function stack(layer, srcs) {
+    return srcs.map((src) => {
+      const img = document.createElement("img");
+      img.className = src.endsWith(".jpg") ? "shot css" : "shot";
+      img.src = src;
+      $(layer).appendChild(img);
+      return img;
+    });
+  }
+  const seq = (dir, n) => Array.from({ length: n }, (_, i) => `captures/${dir}/${pad(i + 1)}.jpg`);
+  const show = (imgs, k) => imgs.forEach((img, i) => (img.style.opacity = i === k ? 1 : 0));
+
+  const hero = stack("home", ["captures/home.png", ...seq("hero", 8), "captures/hero-end.png"]);
+  const card = stack("features", ["captures/features.png", ...seq("card", 6), "captures/card-end.png"]);
+  const scroll = stack("iface", seq("scroll", L.scrollSteps));
+  const ifaceBase = stack("iface", ["captures/interface.png"])[0];
+  const phones = [1, 2, 3].map((p) => stack("iface", [...seq(`phone${p}`, 8), `captures/phone${p}-end.png`]));
+
+  /** Index into a hover stack: forward from `on`, back down from `off` (the CSS transition reversing). */
+  const STEP = 0.055;
+  const hoverIdx = (t, n, on, off, offStep = STEP) => {
+    if (t < on) return 0;
+    const up = Math.min(n, Math.floor((t - on) / STEP) + 1);
+    if (off === undefined || t < off) return up;
+    return Math.max(0, up - Math.floor((t - off) / offStep) - 1);
+  };
+
+  const center = (b) => [b.x + b.w / 2, b.y + b.h / 2];
+  const HERO = [L.heroPhone.x + L.heroPhone.w * 0.5, L.heroPhone.y + 360];
+  const NAV = center(L.navFeatures);
+  const CARD = center(L.card);
+  const P = L.phones.map((b) => [b.x + b.w / 2 + 10, b.y + 300]);
+
+  const T = {
+    heroOn: 0.95, heroOff: 1.6, click: 2.0, wipe1: [2.05, 2.35, 2.7],
+    cardOn: 2.95, cardOff: 3.5, scroll: [3.9, 4.7],
+    p1: [4.95, 5.5], p2: [5.85, 6.4], p3: [6.75], wipe2: [7.05, 7.4, 7.75],
+  };
+  const moveCursor = HV.cursor($("cursor"), [
+    [0.3, 1190, 800], [T.heroOn, ...HERO], [T.heroOff, ...HERO], [T.click, ...NAV], [2.3, ...NAV],
+    [T.cardOn, ...CARD], [T.cardOff, ...CARD], [3.85, 640, 770], [4.6, 640, 770],
+    [T.p1[0], ...P[0]], [T.p1[1], ...P[0]], [T.p2[0], ...P[1]], [T.p2[1], ...P[1]], [T.p3[0], ...P[2]], [7.1, ...P[2]],
+  ], [T.click]);
+
+  const wipeX = (t, start, mid, end) =>
+    t < start || t > end ? -1600 : t < mid ? tw(t, start, mid, -1600, -110, ease.in) : tw(t, mid, end, -110, 1300, ease.out);
+
+  window.DURATION = 8;
+  window.renderAt = (t) => {
+    const scene = t < T.wipe1[1] ? "home" : t < T.scroll[0] ? "features" : t < T.wipe2[1] ? "iface" : "homeEnd";
+    for (const id of ["home", "features", "iface", "homeEnd"]) $(id).style.opacity = id === scene ? 1 : 0;
+
+    // Beat 1: the hero phone straightens under the cursor, and tilts back as it leaves for the nav.
+    show(hero, hoverIdx(t, 9, T.heroOn, T.heroOff));
+    // Beat 2: Features card hover.
+    show(card, hoverIdx(t, 7, T.cardOn, T.cardOff));
+    // Real scroll captures from the features to the interface screens.
+    const sp = seg(t, T.scroll[0], T.scroll[1]);
+    const si = t < T.scroll[0] ? -1 : Math.round(sp * (L.scrollSteps - 1));
+    scroll.forEach((img, i) => (img.style.opacity = i === si && t < T.scroll[1] ? 1 : 0));
+    // Beat 3: each app screen straightens in turn; only one hover stack shows at a time.
+    const idx = [hoverIdx(t, 9, T.p1[0], T.p1[1], 0.035), hoverIdx(t, 9, T.p2[0], T.p2[1], 0.035), hoverIdx(t, 9, T.p3[0])];
+    const active = idx.findIndex((k) => k > 0);
+    ifaceBase.style.opacity = t >= T.scroll[1] && active < 0 ? 1 : 0;
+    phones.forEach((imgs, p) => imgs.forEach((img, i) => (img.style.opacity = t >= T.scroll[1] && p === active && i === idx[p] - 1 ? 1 : 0)));
+
+    // Back home under the brand wipe, easing out to exactly the first frame.
+    $("homeEndImg").style.transform = `scale(${tw(t, T.wipe2[1], 7.9, 1.035, 1, ease.out)})`;
+    const w = t < 4 ? wipeX(t, ...T.wipe1) : wipeX(t, ...T.wipe2);
+    $("wipe").style.transform = `translateX(${w + 1500}px)`;
+
+    moveCursor(t);
+  };
+</script>
+</body>
+</html>
